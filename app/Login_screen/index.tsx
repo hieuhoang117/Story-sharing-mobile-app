@@ -11,7 +11,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     // TODO: gọi API kiểm tra tài khoản thật ở đây
     setIsLoggedIn(true);
-    router.replace('/Main_screen/index');// chuyển sang màn hình chính
+    router.replace('/main_screen');// chuyển sang màn hình chính
   };
 
   return (
