@@ -15,7 +15,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff', marginTop: 100, paddingHorizontal: 20 }}>
+    <View>
       <TextInput textContentType="emailAddress" style={{ borderWidth: 1, borderColor: '#ee1212', padding: 10, marginBottom: 10, color: '#ee1212' }} placeholder="Email" value={email} onChangeText={setEmail} />
       <TextInput textContentType="password" style={{ borderWidth: 1, borderColor: '#13d03c', padding: 10, marginBottom: 10, color: '#13d03c' }} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
       <Button title="Đăng nhập" onPress={handleLogin} />
