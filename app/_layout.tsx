@@ -9,7 +9,7 @@ function RootNavigation() {
       {!isLoggedIn ? (
         <Stack.Screen name="Login_screen" />
       ) : (
-        <Stack.Screen name="Main_screen" />
+        <Stack.Screen name="main_screen" />
       )}
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>
