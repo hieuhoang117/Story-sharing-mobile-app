@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
 function RootNavigation() {
   const { isLoggedIn } = useAuth();
@@ -7,7 +7,7 @@ function RootNavigation() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {!isLoggedIn ? (
-        <Stack.Screen name="Login_screen" />
+        <Stack.Screen name="(Login_screen)" />
       ) : (
         <Stack.Screen name="main_screen" />
       )}
