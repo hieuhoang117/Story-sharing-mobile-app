@@ -6,4 +6,13 @@ const api = axios.create({
 export const login = (email: string, password: string) => {
   return api.post('/users/login', { email, password });
 };
+export const getUserById = (id: string) => {
+  return api.get(`/users/${id}`);
+};
+export const getpostbyuserid=(user_id:string)=>{
+  return api.get(`/posts/postbyuser/`)
+}
+
+
+
 export default api;

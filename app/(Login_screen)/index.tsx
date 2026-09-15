@@ -43,6 +43,7 @@ export default function LoginScreen() {
       marginBottom: 10,
       paddingHorizontal: 10,
       borderRadius: 9,
+      color: 'white',
     },
   });
   const stylebutton = StyleSheet.create({
