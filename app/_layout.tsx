@@ -1,16 +1,11 @@
 import { Stack } from 'expo-router';
-import { AuthProvider, useAuth } from '../context/AuthContext';
+import { AuthProvider } from '../context/AuthContext';
 
 function RootNavigation() {
-  const { isLoggedIn } = useAuth();
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {!isLoggedIn ? (
-        <Stack.Screen name="(Login_screen)" />
-      ) : (
-        <Stack.Screen name="main_screen" />
-      )}
+      <Stack.Screen name="(Login_screen)" />
+      <Stack.Screen name="main_screen" />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>
   );

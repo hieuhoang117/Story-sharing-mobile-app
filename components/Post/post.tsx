@@ -1,8 +1,14 @@
 import { getpostById } from '@/services/postapi';
-import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
-export default function Post(userId: string, postId: string) {
+
+interface PostProps {
+    userId: string;
+    postId: string;
+}
+
+export default function Post({ userId, postId }: PostProps) {
 
     interface PostType {
         id: string,
@@ -22,7 +28,7 @@ export default function Post(userId: string, postId: string) {
     const [post, setPost] = useState<PostType | null>(null);
     const [user, setUser] = useState<UserType | null>(null);
 
-    const fetchPost = async () => {
+    const fetchuser = async () => {
         getUserById(userId)
             .then(response => {
                 console.log('get user successful:', response.data);
@@ -43,9 +49,23 @@ export default function Post(userId: string, postId: string) {
             });
     };
 
+    useEffect(() => {
+        fetchuser();
+        fetchPostById();
+    }, []);
+
+    const stylebackgroud = StyleSheet.create({
+        background: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'black',
+        },
+    });
+
     return (
-        <View>
-            <Text>{user?.display_name}</Text>
+        <View style={stylebackgroud.background}>
+            <Text style={{ color: 'white', backgroundColor: '#ff0000', fontWeight: 'bold' }}>{user?.display_name}</Text>
             <Text>{user?.email}</Text>
             <Text>{user?.username}</Text>
             <Text>{user?.avatar_url}</Text>
