@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Button, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -9,16 +10,63 @@ export default function LoginScreen() {
   const { setIsLoggedIn } = useAuth();
 
   const handleLogin = () => {
-    // TODO: gọi API kiểm tra tài khoản thật ở đây
-    setIsLoggedIn(true);
-    router.replace('/main_screen');// chuyển sang màn hình chính
+    try {
+      api.post('/users/login', { email, password })
+        .then(response => {
+          // Xử lý phản hồi từ API
+          console.log('Login successful:', response.data);
+          setIsLoggedIn(true);
+          router.replace('/main_screen');
+        })
+        .catch(error => {
+          // Xử lý lỗi từ API
+          console.error('Login failed:', error);
+        });
+    } catch (error) {
+      console.error('An error occurred during login:', error);
+    }
   };
+  const stylebackgroud = StyleSheet.create({
+    background: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'black',
+    },
+  });
+  const styleinput = StyleSheet.create({
+    input: {
+      width: '80%',
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      marginBottom: 10,
+      paddingHorizontal: 10,
+      borderRadius: 9,
+    },
+  });
+  const stylebutton = StyleSheet.create({
+    button: {
+      width: '80%',
+      height: 40,
+      backgroundColor: '#007bff',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 20,
+    },
+  });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff', marginTop: 100, paddingHorizontal: 20 }}>
-      <TextInput textContentType="emailAddress" style={{ borderWidth: 1, borderColor: '#ee1212', padding: 10, marginBottom: 10, color: '#ee1212' }} placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput textContentType="password" style={{ borderWidth: 1, borderColor: '#13d03c', padding: 10, marginBottom: 10, color: '#13d03c' }} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Button title="Đăng nhập" onPress={handleLogin} />
+    <View style={ stylebackgroud.background }>
+      <Image source={require('../../assets/images/Logo.png')} style={{ width: 100, height: 100, marginBottom: 20 }} />
+      <TextInput textContentType="emailAddress" placeholderTextColor="gray" style={ styleinput.input } placeholder="Email" value={email} onChangeText={setEmail} />
+      <TextInput textContentType="password" placeholderTextColor="gray" style={ styleinput.input } placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      <Pressable style={ stylebutton.button } onPress={handleLogin}>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Đăng nhập</Text>
+      </Pressable>
+      <Pressable onPress={() => router.push('/')}>
+        <Text style={{ color: '#007bff', marginTop: 10 }}>Quên mật khẩu?</Text>
+      </Pressable>
     </View>
   );
 }
