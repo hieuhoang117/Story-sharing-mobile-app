@@ -32,7 +32,7 @@ export default function Post({ userId, postId }: PostProps) {
         getUserById(userId)
             .then(response => {
                 console.log('get user successful:', response.data);
-                setUser(response.data);
+                setUser(response.data.data);
             })
             .catch(error => {
                 console.error('get user failed:', error);
@@ -42,7 +42,7 @@ export default function Post({ userId, postId }: PostProps) {
         getpostById(postId)
             .then(response => {
                 console.log('get post successful:', response.data);
-                setPost(response.data);
+                setPost(response.data.data);
             })
             .catch(error => {
                 console.error('get post failed:', error);
@@ -54,22 +54,32 @@ export default function Post({ userId, postId }: PostProps) {
         fetchPostById();
     }, []);
 
-    const stylebackgroud = StyleSheet.create({
-        background: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'black',
-        },
-    });
+
 
     return (
-        <View style={stylebackgroud.background}>
-            <Text style={{ color: 'white', backgroundColor: '#ff0000', fontWeight: 'bold' }}>{user?.display_name}</Text>
-            <Text>{user?.email}</Text>
-            <Text>{user?.username}</Text>
-            <Text>{user?.avatar_url}</Text>
-            <Text>{post?.content}</Text>
+        <View style={styles.container}>
+            <Text style={styles.displayName}>{user?.display_name}</Text>
+            <Text style={styles.text}>{user?.email}</Text>
+            <Text style={styles.text}>{user?.username}</Text>
+            <Text style={styles.text}>{user?.avatar_url}</Text>
+            <Text style={styles.text}>{post?.content}</Text>
         </View>
     );
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+        borderColor:'black',
+    },
+    displayName: {
+        color: 'black',
+        backgroundColor: '#ff0000',
+        fontWeight: 'bold',
+    },
+    text: {
+        color: 'black',
+    },
+});
