@@ -40,17 +40,17 @@ const MainMenu = () => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    flex: 1,
-    justifyContent: 'space-between',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 5,
+    bottom: 0,
     left: 0,
   },
   row: {
+    width:'100%',
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     gap: 8,
+    justifyContent:'space-evenly',
   },
 });
 

@@ -1,7 +1,8 @@
 import Post from '@/components/Post/post';
 import { getpostById } from '@/services/postapi';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import MainMenu from '../../components/Main-menu/Main-menu';
 
 export default function MainScreen() {
 
@@ -43,8 +44,12 @@ export default function MainScreen() {
     };
 
     return (
-        <View>
+        <View style={styles.root}>
             <Post userId={useridmau} postId={postidmau} />
+            <MainMenu/>
         </View>
     );
 }
+const styles = StyleSheet.create({
+    root: { flex: 1 },
+});
