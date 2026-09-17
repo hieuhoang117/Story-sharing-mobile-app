@@ -1,6 +1,6 @@
 import { getpostById } from '@/services/postapi';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
 
 interface PostProps {
@@ -58,21 +58,24 @@ export default function Post({ userId, postId }: PostProps) {
 
     return (
         <View style={styles.container}>
+            <Image style={styles.avartar} source={{ uri: 'https://res.cloudinary.com/nn8w7oql/image/upload/v1789662838/avatars/bmdiesossw0ci8qfqgin.png' }}></Image>
             <Text style={styles.displayName}>{user?.display_name}</Text>
             <Text style={styles.text}>{user?.email}</Text>
             <Text style={styles.text}>{user?.username}</Text>
-            <Text style={styles.text}>{user?.avatar_url}</Text>
             <Text style={styles.text}>{post?.content}</Text>
         </View>
     );
 }
 const styles = StyleSheet.create({
     container: {
+        marginBlockStart:'auto',
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
-        borderColor:'black',
+        borderRadius: '5px',
+        borderColor:'#ff0000'
+
     },
     displayName: {
         color: 'black',
@@ -82,4 +85,10 @@ const styles = StyleSheet.create({
     text: {
         color: 'black',
     },
+    avartar: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        alignSelf:'flex-start',
+    }
 });
