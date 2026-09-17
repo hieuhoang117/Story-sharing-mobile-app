@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model blocks {
+  id                                 String      @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id                            String      @db.Char(36)
+  target_user_id                     String      @db.Char(36)
+  type                               blocks_type
+  created_at                         DateTime    @default(now()) @db.Timestamp(0)
+  users_blocks_target_user_idTousers users       @relation("blocks_target_user_idTousers", fields: [target_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_blocks_target")
+  users_blocks_user_idTousers        users       @relation("blocks_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_blocks_user")
+
+  @@unique([user_id, target_user_id, type], map: "uq_blocks_pair_type")
+  @@index([target_user_id], map: "fk_blocks_target")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model follows {
+  id                                String         @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  follower_id                       String         @db.Char(36)
+  following_id                      String         @db.Char(36)
+  status                            follows_status @default(accepted)
+  created_at                        DateTime       @default(now()) @db.Timestamp(0)
+  users_follows_follower_idTousers  users          @relation("follows_follower_idTousers", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_follows_follower")
+  users_follows_following_idTousers users          @relation("follows_following_idTousers", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_follows_following")
+
+  @@unique([follower_id, following_id], map: "uq_follows_pair")
+  @@index([following_id], map: "idx_follows_following")
+}
+
+model hashtags {
+  id            String          @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  tag           String          @unique(map: "uq_hashtags_tag") @db.VarChar(100)
+  post_count    Int             @default(0) @db.UnsignedInt
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  post_hashtags post_hashtags[]
+}
+
+model likes {
+  id         String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id    String   @db.Char(36)
+  post_id    String   @db.Char(36)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  posts      posts    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_likes_post")
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_likes_user")
+
+  @@unique([user_id, post_id], map: "uq_likes_user_post")
+  @@index([post_id], map: "idx_likes_post")
+}
+
+model media {
+  id            String       @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  post_id       String       @db.Char(36)
+  type          media_type
+  url           String       @db.Text
+  thumbnail_url String?      @db.Text
+  width         Int?         @db.UnsignedInt
+  height        Int?         @db.UnsignedInt
+  order_index   Int          @default(0) @db.UnsignedTinyInt
+  status        media_status @default(active)
+  created_at    DateTime     @default(now()) @db.Timestamp(0)
+  posts         posts        @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_media_post")
+
+  @@index([post_id], map: "idx_media_post")
+}
+
+model notifications {
+  id                                  String             @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id                             String             @db.Char(36)
+  actor_id                            String             @db.Char(36)
+  type                                notifications_type
+  post_id                             String?            @db.Char(36)
+  is_read                             Int                @default(0) @db.TinyInt
+  created_at                          DateTime           @default(now()) @db.Timestamp(0)
+  users_notifications_actor_idTousers users              @relation("notifications_actor_idTousers", fields: [actor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_noti_actor")
+  posts                               posts?             @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_noti_post")
+  users_notifications_user_idTousers  users              @relation("notifications_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_noti_user")
+
+  @@index([actor_id], map: "fk_noti_actor")
+  @@index([post_id], map: "fk_noti_post")
+  @@index([user_id, is_read, created_at], map: "idx_noti_user_read")
+}
+
+model post_hashtags {
+  post_id    String   @db.Char(36)
+  hashtag_id String   @db.Char(36)
+  hashtags   hashtags @relation(fields: [hashtag_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ph_hashtag")
+  posts      posts    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ph_post")
+
+  @@id([post_id, hashtag_id])
+  @@index([hashtag_id], map: "idx_post_hashtags_hashtag")
+}
+
+model posts {
+  id             String           @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id        String           @db.Char(36)
+  parent_post_id String?          @db.Char(36)
+  content        String?          @db.Text
+  visibility     posts_visibility @default(public)
+  status         posts_status     @default(active)
+  removed_reason String?          @db.VarChar(255)
+  like_count     Int              @default(0) @db.UnsignedInt
+  reply_count    Int              @default(0) @db.UnsignedInt
+  repost_count   Int              @default(0) @db.UnsignedInt
+  created_at     DateTime         @default(now()) @db.Timestamp(0)
+  updated_at     DateTime         @default(now()) @db.Timestamp(0)
+  likes          likes[]
+  media          media[]
+  notifications  notifications[]
+  post_hashtags  post_hashtags[]
+  posts          posts?           @relation("postsToposts", fields: [parent_post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_posts_parent")
+  other_posts    posts[]          @relation("postsToposts")
+  users          users            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_posts_user")
+  reports        reports[]
+  reposts        reposts[]
+
+  @@index([parent_post_id], map: "idx_posts_parent")
+  @@index([user_id, created_at], map: "idx_posts_user_created")
+  @@index([status], map: "idx_posts_status")
+}
+
+model reports {
+  id                                    String         @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  reporter_id                           String         @db.Char(36)
+  post_id                               String?        @db.Char(36)
+  reported_user_id                      String?        @db.Char(36)
+  reason                                String         @db.VarChar(255)
+  status                                reports_status @default(pending)
+  created_at                            DateTime       @default(now()) @db.Timestamp(0)
+  posts                                 posts?         @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reports_post")
+  users_reports_reporter_idTousers      users          @relation("reports_reporter_idTousers", fields: [reporter_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reports_reporter")
+  users_reports_reported_user_idTousers users?         @relation("reports_reported_user_idTousers", fields: [reported_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reports_user")
+
+  @@index([post_id], map: "fk_reports_post")
+  @@index([reporter_id], map: "fk_reports_reporter")
+  @@index([reported_user_id], map: "fk_reports_user")
+  @@index([status], map: "idx_reports_status")
+}
+
+model reposts {
+  id               String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id          String   @db.Char(36)
+  original_post_id String   @db.Char(36)
+  quote_text       String?  @db.Text
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  posts            posts    @relation(fields: [original_post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reposts_original")
+  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reposts_user")
+
+  @@unique([user_id, original_post_id], map: "uq_reposts_user_post")
+  @@index([original_post_id], map: "idx_reposts_original")
+}
+
+model users {
+  id                                          String          @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  username                                    String          @unique(map: "uq_users_username") @db.VarChar(30)
+  display_name                                String?         @db.VarChar(50)
+  email                                       String          @unique(map: "uq_users_email") @db.VarChar(255)
+  password_hash                               String          @db.VarChar(255)
+  avatar_url                                  String?         @db.Text
+  bio                                         String?         @db.VarChar(160)
+  role                                        users_role      @default(user)
+  status                                      users_status    @default(active)
+  ban_reason                                  String?         @db.VarChar(255)
+  banned_until                                DateTime?       @db.Timestamp(0)
+  is_private                                  Int             @default(0) @db.TinyInt
+  is_verified                                 Int             @default(0) @db.TinyInt
+  created_at                                  DateTime        @default(now()) @db.Timestamp(0)
+  updated_at                                  DateTime        @default(now()) @db.Timestamp(0)
+  blocks_blocks_target_user_idTousers         blocks[]        @relation("blocks_target_user_idTousers")
+  blocks_blocks_user_idTousers                blocks[]        @relation("blocks_user_idTousers")
+  follows_follows_follower_idTousers          follows[]       @relation("follows_follower_idTousers")
+  follows_follows_following_idTousers         follows[]       @relation("follows_following_idTousers")
+  likes                                       likes[]
+  notifications_notifications_actor_idTousers notifications[] @relation("notifications_actor_idTousers")
+  notifications_notifications_user_idTousers  notifications[] @relation("notifications_user_idTousers")
+  posts                                       posts[]
+  reports_reports_reporter_idTousers          reports[]       @relation("reports_reporter_idTousers")
+  reports_reports_reported_user_idTousers     reports[]       @relation("reports_reported_user_idTousers")
+  reposts                                     reposts[]
+  user_bans_user_bans_banned_byTousers        user_bans[]     @relation("user_bans_banned_byTousers")
+  user_bans_user_bans_user_idTousers          user_bans[]     @relation("user_bans_user_idTousers")
+
+  @@index([status], map: "idx_users_status")
+}
+
+model user_bans {
+  id                               String    @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  user_id                          String    @db.Char(36)
+  banned_by                        String    @db.Char(36)
+  reason                           String    @db.VarChar(255)
+  banned_at                        DateTime  @default(now()) @db.Timestamp(0)
+  expires_at                       DateTime? @db.Timestamp(0)
+  lifted_at                        DateTime? @db.Timestamp(0)
+  is_active                        Int       @default(1) @db.TinyInt
+  users_user_bans_banned_byTousers users     @relation("user_bans_banned_byTousers", fields: [banned_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bans_admin")
+  users_user_bans_user_idTousers   users     @relation("user_bans_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_bans_user")
+
+  @@index([banned_by], map: "fk_bans_admin")
+  @@index([user_id, is_active], map: "idx_bans_user")
+}
+
+enum media_type {
+  image
+  video
+  gif
+}
+
+enum blocks_type {
+  block
+  mute
+}
+
+enum notifications_type {
+  like
+  reply
+  follow
+  mention
+  repost
+}
+
+enum follows_status {
+  accepted
+  pending
+}
+
+enum posts_visibility {
+  public
+  followers
+  private
+}
+
+enum reports_status {
+  pending
+  reviewed
+  dismissed
+}
+
+enum posts_status {
+  active
+  hidden
+  removed
+}
+
+enum users_role {
+  user
+  moderator
+  admin
+}
+
+enum media_status {
+  active
+  removed
+}
+
+enum users_status {
+  active
+  suspended
+  banned
+}
