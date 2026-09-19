@@ -2,6 +2,7 @@ import { getpostById } from '@/services/postapi';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
+import PostButton from './postbutton';
 
 interface PostProps {
     userId: string;
@@ -63,32 +64,34 @@ export default function Post({ userId, postId }: PostProps) {
             <Text style={styles.text}>{user?.email}</Text>
             <Text style={styles.text}>{user?.username}</Text>
             <Text style={styles.text}>{post?.content}</Text>
+            <PostButton />
         </View>
     );
 }
 const styles = StyleSheet.create({
     container: {
-        marginBlockStart:'auto',
-        flex: 1,
-        justifyContent: 'center',
+        padding: 12,
         alignItems: 'center',
         backgroundColor: 'transparent',
-        borderRadius: '5px',
-        borderColor:'#ff0000'
-
+        borderRadius: 5,
+        marginTop: 10,
+        borderColor: 'white',
+        borderWidth: 1,
     },
     displayName: {
         color: 'black',
-        backgroundColor: '#ff0000',
         fontWeight: 'bold',
+        alignSelf: 'flex-start',
     },
     text: {
         color: 'black',
     },
     avartar: {
-        width: 80,
-        height: 80,
+        width: 50,
+        height: 50,
         borderRadius: 40,
-        alignSelf:'flex-start',
-    }
+        alignSelf: 'flex-start',
+    },
+    
+
 });
