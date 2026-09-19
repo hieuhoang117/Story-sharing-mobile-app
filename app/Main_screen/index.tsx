@@ -22,7 +22,6 @@ export default function MainScreen() {
     setLoading(true);
     try {
       const response = await getAllPosts();
-      console.log('get all posts successful:', response.data);
       setPosts(response.data.data); // tùy backend trả { data: [...] } hay trả thẳng mảng
     } catch (error) {
       console.error('get all posts failed:', error);

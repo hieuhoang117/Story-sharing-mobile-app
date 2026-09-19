@@ -32,7 +32,6 @@ export default function Post({ userId, postId }: PostProps) {
     const fetchuser = async () => {
         getUserById(userId)
             .then(response => {
-                console.log('get user successful:', response.data);
                 setUser(response.data.data);
             })
             .catch(error => {
@@ -42,7 +41,6 @@ export default function Post({ userId, postId }: PostProps) {
     const fetchPostById = async () => {
         getpostById(postId)
             .then(response => {
-                console.log('get post successful:', response.data);
                 setPost(response.data.data);
             })
             .catch(error => {
