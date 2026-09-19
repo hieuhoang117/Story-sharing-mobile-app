@@ -6,6 +6,9 @@ const api = axios.create({
 export const getpostById = (id: string) => {
   return api.get(`/posts/${id}`);
 }
+export const getAllPosts=()=>{
+  return api.get(`/posts/allPost`)
+}
 
 
 

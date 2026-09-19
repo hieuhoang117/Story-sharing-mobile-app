@@ -13,6 +13,17 @@ const Post = {
             },
         });
     },
+    getallpost:async()=>{
+        return await prisma.posts.findMany({
+            select:{
+                id: true,
+                user_id: true,
+                content: true,
+                created_at: true,
+                updated_at: true,
+            }
+        })
+    },
     getpostbyuserid: async (user_id: string) => {
         return await prisma.posts.findMany({
             where: { user_id },

@@ -7,14 +7,14 @@ import api from '../../services/api';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setIsLoggedIn } = useAuth();
+  const { setIsLoggedIn,setidUser } = useAuth();
 
   const handleLogin = () => {
     try {
       api.post('/users/login', { email, password })
         .then(response => {
           // Xử lý phản hồi từ API
-          console.log('Login successful:', response.data);
+          setidUser(response.data.data.ser_id)
           setIsLoggedIn(true);
           router.replace('/main_screen');
         })

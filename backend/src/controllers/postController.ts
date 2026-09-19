@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import * as post from '../services/postService';
-import { error } from 'console';
 
 export const getPostById = async (req: Request, res: Response) => {
     try {
@@ -30,4 +29,17 @@ export const getpostbyuserid = async (req: Request, res: Response) => {
     } catch (error) {
         return res.status(500).json({ message: 'Error fetching post', error });
     }
+};
+export const getAllposts =async(req:Request,res:Response)=>{
+    try{
+        const postdata=await post.getallpost();
+
+        if(!postdata||postdata.length==0){
+            return res.status(404).json({message:'Post not found'});
+        }
+        return res.status(200).json({data:postdata});
+    }catch(error){
+         return res.status(500).json({ message: 'Error fetching post', error });
+    }
+    
 };

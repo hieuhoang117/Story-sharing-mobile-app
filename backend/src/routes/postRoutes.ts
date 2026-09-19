@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { getPostById, getpostbyuserid } from '../controllers/postController';
+import { getAllposts, getPostById, getpostbyuserid } from '../controllers/postController';
 
 const router = Router();
 
-router.get('/:id', getPostById);
 router.get('/postbyuser/:user_id', getpostbyuserid);
+router.get('/allPost', getAllposts);
+router.get('/:id', getPostById);
 
 export default router;

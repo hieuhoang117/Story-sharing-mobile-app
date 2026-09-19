@@ -7,3 +7,6 @@ export const getPostById = async (id: string) => {
 export const getPostByUserId = async (user_id: string) => {
   return await Post.getpostbyuserid(user_id);
 };
+export const getallpost=async()=>{
+  return await Post.getallpost();
+};

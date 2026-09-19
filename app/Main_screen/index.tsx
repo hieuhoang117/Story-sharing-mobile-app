@@ -1,55 +1,56 @@
 import Post from '@/components/Post/post';
-import { getpostById } from '@/services/postapi';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { getAllPosts } from '@/services/postapi';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
 import MainMenu from '../../components/Main-menu/Main-menu';
+import { useAuth } from '../../context/AuthContext';
+
+interface PostType {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function MainScreen() {
+  const { idUser } = useAuth();
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    interface PostType {
-        id: string,
-        user_id: string,
-        content: string,
-        created_at: string,
-        updated_at: string
+  const fetchAllPosts = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllPosts();
+      console.log('get all posts successful:', response.data);
+      setPosts(response.data.data); // tùy backend trả { data: [...] } hay trả thẳng mảng
+    } catch (error) {
+      console.error('get all posts failed:', error);
+    } finally {
+      setLoading(false);
     }
-    interface UserType {
-        id: string,
-        username: string,
-        display_name: string,
-        email: string,
-        avatar_url: string
-    }
+  };
 
-    const [post, setPost] = useState<PostType | null>(null);
-    const [user, setUser] = useState<UserType | null>(null);
+  useEffect(() => {
+    fetchAllPosts();
+  }, []);
 
-    const postidmau: string = "p0000000-0000-0000-0000-000000000001";
-    const useridmau: string="u0000000-0000-0000-0000-000000000003";
-    const fetchPostById = async () => {
-
-        if (!postidmau) {
-            console.warn('No post id available');
-            return;
-        }
-
-        getpostById(postidmau)
-            .then(response => {
-                console.log('get post successful:', response.data);
-                setPost(response.data);
-            })
-            .catch(error => {
-                console.error('get post failed:', error);
-            });
-    };
-
-    return (
-        <View style={styles.root}>
-            <Post userId={useridmau} postId={postidmau} />
-            <MainMenu/>
-        </View>
-    );
+  return (
+    <View style={styles.root}>
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <Post userId={item.user_id} postId={item.id} />
+        )}
+        refreshing={loading}
+        onRefresh={fetchAllPosts}
+      />
+      <MainMenu />
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
-    root: { flex: 1 },
+  root: { flex: 1 },
 });
