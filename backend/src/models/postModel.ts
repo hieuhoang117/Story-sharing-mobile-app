@@ -37,7 +37,7 @@ const Post = {
         });
     },
     getpictrbypost:async (post_id:string)=>{
-        return await prisma.media.findFirst({
+        return await prisma.media.findMany({
             where:{post_id},
             select:{
                 url:true,

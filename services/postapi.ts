@@ -12,4 +12,5 @@ export const getAllPosts=()=>{
 
 
 
+
 export default api;

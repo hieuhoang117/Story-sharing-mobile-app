@@ -1,6 +1,6 @@
 import { getpostById } from '@/services/postapi';
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
 import PostButton from './postbutton';
 
@@ -25,9 +25,13 @@ export default function Post({ userId, postId }: PostProps) {
         email: string,
         avatar_url: string
     }
+    interface postpic {
+        url: string
+    }
 
     const [post, setPost] = useState<PostType | null>(null);
     const [user, setUser] = useState<UserType | null>(null);
+    const [postpic, setpostpic] = useState<postpic | null>(null);
 
     const fetchuser = async () => {
         getUserById(userId)
@@ -57,7 +61,16 @@ export default function Post({ userId, postId }: PostProps) {
 
     return (
         <View style={styles.container}>
-            <Image style={styles.avartar} source={{ uri: 'https://res.cloudinary.com/nn8w7oql/image/upload/v1789662838/avatars/bmdiesossw0ci8qfqgin.png' }}></Image>
+            <FlatList
+                data={postpic}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <Image style={styles.avartar} source={{ uri: item?.url }}></Image> 
+                )}
+                refreshing={loading}
+                onRefresh={fetchAllPosts}
+            />
+
             <Text style={styles.displayName}>{user?.display_name}</Text>
             <Text style={styles.text}>{user?.email}</Text>
             <Text style={styles.text}>{user?.username}</Text>
@@ -90,6 +103,6 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         alignSelf: 'flex-start',
     },
-    
+
 
 });
