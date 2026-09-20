@@ -1,6 +1,6 @@
 import { getpicbypost, getpostById } from '@/services/postapi';
 import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
 import PostButton from './postbutton';
 
@@ -33,6 +33,8 @@ export default function Post({ userId, postId }: PostProps) {
     const [user, setUser] = useState<UserType | null>(null);
     const [postpic, setpostpic] = useState<postpic[]>([]);
     const [loading, setLoading] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const fetchuser = async () => {
         getUserById(userId)
@@ -87,13 +89,33 @@ export default function Post({ userId, postId }: PostProps) {
                 data={postpic}
                 keyExtractor={(item, index) => `${item.url}-${index}`}
                 renderItem={({ item }) => (
-                    <Image style={styles.pic} source={{ uri: item?.url }}></Image>
+                    <Pressable onPress={() => {
+                        setSelectedImage(item.url);
+                        setModalVisible(true);
+                    }}>
+                        <Image style={styles.pic} source={{ uri: item?.url }} />
+                    </Pressable>
                 )}
                 refreshing={loading}
                 onRefresh={fetchpicbypost}
             />
             <PostButton />
+            <Modal
+                visible={modalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <Pressable style={styles.modalBackground} onPress={() => setModalVisible(false)}>
+                    <Image
+                        style={styles.fullImage}
+                        source={{ uri: selectedImage ?? '' }}
+                        resizeMode="contain"
+                    />
+                </Pressable>
+            </Modal>
         </View>
+
     );
 }
 const styles = StyleSheet.create({
@@ -125,8 +147,17 @@ const styles = StyleSheet.create({
         height: 150,
         borderRadius: 10,
         alignSelf: 'center',
-        marginLeft:5,
+        marginLeft: 5,
     },
-
+    modalBackground: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullImage: {
+        width: '100%',
+        height: '80%',
+    },
 
 });
