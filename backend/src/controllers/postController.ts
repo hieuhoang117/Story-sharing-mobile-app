@@ -30,16 +30,29 @@ export const getpostbyuserid = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error fetching post', error });
     }
 };
-export const getAllposts =async(req:Request,res:Response)=>{
-    try{
-        const postdata=await post.getallpost();
+export const getAllposts = async (req: Request, res: Response) => {
+    try {
+        const postdata = await post.getallpost();
 
-        if(!postdata||postdata.length==0){
-            return res.status(404).json({message:'Post not found'});
+        if (!postdata || postdata.length == 0) {
+            return res.status(404).json({ message: 'Post not found' });
         }
-        return res.status(200).json({data:postdata});
-    }catch(error){
-         return res.status(500).json({ message: 'Error fetching post', error });
+        return res.status(200).json({ data: postdata });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching post', error });
     }
-    
+
 };
+export const getpicbypost = async (req: Request, res: Response) => {
+    try {
+        const { post_id } = req.params;
+        const postid = Array.isArray(post_id) ? post_id[0] : post_id;
+        const postdata = await post.getpostpic(postid);
+        if (!postdata) {
+            return res.status(404).json({ message: 'Post pic not found' });
+        }
+        return res.status(200).json({ data: postdata });
+    }catch (error) {
+        return res.status(500).json({ message: 'Error fetching post pic', error });
+    }
+}

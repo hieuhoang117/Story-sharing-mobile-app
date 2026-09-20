@@ -10,3 +10,6 @@ export const getPostByUserId = async (user_id: string) => {
 export const getallpost=async()=>{
   return await Post.getallpost();
 };
+export const getpostpic=async (post_id:string)=>{
+  return await Post.getpictrbypost(post_id);
+}

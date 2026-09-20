@@ -36,6 +36,14 @@ const Post = {
             },
         });
     },
+    getpictrbypost:async (post_id:string)=>{
+        return await prisma.media.findFirst({
+            where:{post_id},
+            select:{
+                url:true,
+            }
+        })
+    }
 };
 
 export default Post;
