@@ -6,6 +6,7 @@ function RootNavigation() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(Login_screen)" />
       <Stack.Screen name="main_screen" />
+      <Stack.Screen name='profile'/>
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>
   );
