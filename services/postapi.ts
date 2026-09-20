@@ -9,7 +9,9 @@ export const getpostById = (id: string) => {
 export const getAllPosts=()=>{
   return api.get(`/posts/allPost`)
 }
-
+export const getpicbypost=(post_id:string)=>{
+  return api.get(`/posts/getpostpic/${post_id}`);
+}
 
 
 
