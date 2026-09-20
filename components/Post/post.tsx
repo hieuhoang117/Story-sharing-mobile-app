@@ -56,8 +56,7 @@ export default function Post({ userId, postId }: PostProps) {
         setLoading(true);
         getpicbypost(postId)
             .then(response => {
-                const picture = response.data.data;
-                setpostpic(picture ? [picture] : []);
+                setpostpic(response.data.data);
             })
             .catch(error => {
                 console.error('get post failed:', error);
@@ -77,19 +76,22 @@ export default function Post({ userId, postId }: PostProps) {
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={postpic}
-                keyExtractor={(item, index) => `${item.url}-${index}`}
-                renderItem={({ item }) => (
-                    <Image style={styles.avartar} source={{ uri: item?.url }}></Image>
-                )}
-                refreshing={loading}
-                onRefresh={fetchpicbypost}
-            />
+            <Image style={styles.avartar} source={{ uri: user?.avatar_url }}></Image>
             <Text style={styles.displayName}>{user?.display_name}</Text>
             <Text style={styles.text}>{user?.email}</Text>
             <Text style={styles.text}>{user?.username}</Text>
             <Text style={styles.text}>{post?.content}</Text>
+
+            <FlatList
+                horizontal={true}
+                data={postpic}
+                keyExtractor={(item, index) => `${item.url}-${index}`}
+                renderItem={({ item }) => (
+                    <Image style={styles.pic} source={{ uri: item?.url }}></Image>
+                )}
+                refreshing={loading}
+                onRefresh={fetchpicbypost}
+            />
             <PostButton />
         </View>
     );
@@ -117,6 +119,13 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 40,
         alignSelf: 'flex-start',
+    },
+    pic: {
+        width: 150,
+        height: 150,
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginLeft:5,
     },
 
 
