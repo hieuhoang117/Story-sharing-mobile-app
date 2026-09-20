@@ -13,7 +13,7 @@ const MainMenu = () => {
     { key: 'Finding', icon: 'magnifyingglass', screen: '/' },
     { key: 'Plus', icon: 'plus', screen: '/' },
     { key: 'Love', icon: 'heart.fill', screen: '/' },
-    { key: 'Profile', icon: 'person.fill', screen: '/' },
+    { key: 'Profile', icon: 'person.fill', screen: '/profile' },
   ];
 
   const handlePress = (item: typeof menuItems[number]) => {
