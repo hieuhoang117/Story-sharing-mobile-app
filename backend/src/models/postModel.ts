@@ -43,7 +43,16 @@ const Post = {
                 url:true,
             }
         })
-    }
+    },
+    updateStatus: async (id: string, status: 'active' | 'hidden' | 'removed') => {
+        return await prisma.posts.update({
+            where: { id },
+            data: { status },
+        });
+    },
+    delete: async (id: string) => {
+        return await prisma.posts.delete({ where: { id } });
+    },
 };
 
 export default Post;
