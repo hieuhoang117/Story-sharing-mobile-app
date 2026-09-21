@@ -4,7 +4,7 @@ export default function MainLayout() {
   return (
     <Stack>
       <Stack.Screen name="index"
-      options={{title:'Hồ sơ'}} />
+      options={{title:''}} />
     </Stack>
   );
 }

@@ -3,7 +3,7 @@ import { Text, View } from "react-native"
 export default function profile() {
     return (
         <View>
-            <Text>profile</Text>
+            <Text>Cửa sổ profile</Text>
         </View>
     )
 }
