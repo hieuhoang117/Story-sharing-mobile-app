@@ -78,10 +78,11 @@ export default function Post({ userId, postId }: PostProps) {
 
     return (
         <View style={styles.container}>
-            <Image style={styles.avartar} source={{ uri: user?.avatar_url }}></Image>
-            <Text style={styles.displayName}>{user?.display_name}</Text>
-            <Text style={styles.text}>{user?.email}</Text>
-            <Text style={styles.text}>{user?.username}</Text>
+            <View style={styles.heading}>
+                <Image style={styles.avartar} source={{ uri: user?.avatar_url }}></Image>
+                <Text style={styles.displayName}>{user?.display_name}</Text>
+            </View>
+
             <Text style={styles.text}>{post?.content}</Text>
 
             <FlatList
@@ -159,5 +160,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '80%',
     },
+    heading: {
+        flexDirection: 'row',
+        alignSelf: 'flex-start',
+        marginBottom: 10,
+    }
 
 });

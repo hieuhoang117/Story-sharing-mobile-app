@@ -5,7 +5,7 @@ export default function MainLayout() {
     <Stack>
       <Stack.Screen name="index"
         options={{
-          title: '@Soichi',
+          title: 'iLife',
         }} />
     </Stack>
   );
