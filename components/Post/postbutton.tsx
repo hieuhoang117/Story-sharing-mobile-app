@@ -1,4 +1,4 @@
-import { getlikesbypost } from '@/services/postapi';
+import { createlike, getlikesbypost } from '@/services/postapi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -26,6 +26,18 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
             console.error('get all like failed:', error);
         }
     }
+    const handleCreateLike = async () => {
+        if (isLiked) {
+            setIsLiked(false);
+            fetchlike();
+        }
+        try {
+            await createlike(post_id, user_id);
+            await fetchlike();
+        } catch (error) {
+            console.error('create like failed:', error);
+        }
+    }
     const checkIsLiked = () => {
         const liked = like.some((item) => item.user_id === user_id);
         setIsLiked(liked);
@@ -45,7 +57,7 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     accessibilityRole="button"
                     accessibilityLabel="Like bài viết"
                     style={[styles.likeButton, isLiked && styles.likeButtonActive]}
-                    onPress={() => setIsLiked((value) => !value)}
+                    onPress={handleCreateLike}
                 >
                     <MaterialIcons
                         name={isLiked ? 'favorite' : 'favorite-border'}
