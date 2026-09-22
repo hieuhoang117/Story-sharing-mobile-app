@@ -20,4 +20,13 @@ export const getpostpic=async (post_id:string)=>{
 //like---------------------------------------------------
 export const getlikesbypost=async (post_id:string)=>{
   return await Like.getpostlike(post_id);
-}
+};
+
+export const createLike = async (user_id: string, post_id: string) => {
+  return await Like.create({
+    data: {
+      user_id,
+      post_id,
+    },
+  });
+};

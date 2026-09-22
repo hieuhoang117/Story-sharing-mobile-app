@@ -16,6 +16,25 @@ export const getPostById = async (req: Request, res: Response) => {
     }
 };
 
+export const createLike = async (req: Request, res: Response) => {
+    try {
+        const { post_id } = req.params;
+        const { user_id } = req.body;
+        const postid = Array.isArray(post_id) ? post_id[0] : post_id;
+
+        if (!postid || typeof user_id !== 'string' || !user_id) {
+            return res.status(400).json({
+                message: 'post_id and user_id are required',
+            });
+        }
+
+        const likeData = await like.createLike(user_id, postid);
+        return res.status(201).json({ data: likeData });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating like', error });
+    }
+};
+
 export const getpostbyuserid = async (req: Request, res: Response) => {
     try {
         const { user_id } = req.params;
