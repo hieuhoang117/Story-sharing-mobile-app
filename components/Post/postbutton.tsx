@@ -88,10 +88,10 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     accessibilityRole="button"
                     accessibilityLabel="Coment"
                     style={[styles.likeButton]}
-                    //onPress={isLiked ? handledeletelike : handleCreateLike}
+                    //onPress={() => navigation.navigate('PostDetail')}
                 >
                     <MaterialIcons
-                        name={'comment' }
+                        name={'comment'}
                         size={24}
                         color={'wwhite'}
                     />
@@ -101,17 +101,17 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     accessibilityRole="button"
                     accessibilityLabel="Coment"
                     style={[styles.likeButton]}
-                    //onPress={isLiked ? handledeletelike : handleCreateLike}
+                //onPress={isLiked ? handledeletelike : handleCreateLike}
                 >
                     <MaterialIcons
-                        name={'share' }
+                        name={'share'}
                         size={24}
                         color={'wwhite'}
                     />
                     <Text style={styles.likeCount}>20</Text>
                 </Pressable>
             </View>
-            
+
         </ThemedView>
     );
 };
