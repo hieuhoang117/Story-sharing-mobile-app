@@ -84,7 +84,34 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     />
                     <Text style={styles.likeCount}>{like.length}</Text>
                 </Pressable>
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Coment"
+                    style={[styles.likeButton]}
+                    //onPress={isLiked ? handledeletelike : handleCreateLike}
+                >
+                    <MaterialIcons
+                        name={'comment' }
+                        size={24}
+                        color={'wwhite'}
+                    />
+                    <Text style={styles.likeCount}>15</Text>
+                </Pressable>
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Coment"
+                    style={[styles.likeButton]}
+                    //onPress={isLiked ? handledeletelike : handleCreateLike}
+                >
+                    <MaterialIcons
+                        name={'share' }
+                        size={24}
+                        color={'wwhite'}
+                    />
+                    <Text style={styles.likeCount}>20</Text>
+                </Pressable>
             </View>
+            
         </ThemedView>
     );
 };
