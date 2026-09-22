@@ -17,5 +17,8 @@ export const getlikesbypost = (post_id: string) => {
 export const createlike = (post_id: string, user_id: string) => {
   return api.post(`/posts/like/${post_id}`, { user_id })
 }
+export const deletelike = (likeid: string) => {
+  return api.delete(`/posts/deletelike/${likeid}`)
+}
 
 export default api;

@@ -35,6 +35,22 @@ export const createLike = async (req: Request, res: Response) => {
     }
 };
 
+export const deleteLike = async (req: Request, res: Response) => {
+    try {
+        const { likeid } = req.params;
+        const likeId = Array.isArray(likeid) ? likeid[0] : likeid;
+
+        if (!likeId) {
+            return res.status(400).json({ message: 'like id is required' });
+        }
+
+        await like.deletelike(likeId);
+        return res.status(204).send();
+    } catch (error) {
+        return res.status(500).json({ message: 'Error deleting like', error });
+    }
+};
+
 export const getpostbyuserid = async (req: Request, res: Response) => {
     try {
         const { user_id } = req.params;

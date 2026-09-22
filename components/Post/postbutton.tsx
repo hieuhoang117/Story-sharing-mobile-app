@@ -1,4 +1,4 @@
-import { createlike, getlikesbypost } from '@/services/postapi';
+import { createlike, deletelike, getlikesbypost } from '@/services/postapi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -11,7 +11,8 @@ interface PostButtonProps {
 
 const PostButton = ({ post_id, user_id }: PostButtonProps) => {
     interface liketype {
-        user_id: string
+        user_id: string;
+        id: string
     }
 
     const [like, setlike] = useState<liketype[]>([]);
@@ -38,6 +39,23 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
             console.error('create like failed:', error);
         }
     }
+    const handledeletelike = async () => {
+        if (!isLiked) {
+            return;
+        }
+
+        const currentLike = like.find((item) => item.user_id === user_id);
+        if (!currentLike) {
+            return;
+        }
+
+        try {
+            await deletelike(currentLike.id);
+            await fetchlike();
+        } catch (error) {
+            console.error('delete like failed:', error);
+        }
+    };
     const checkIsLiked = () => {
         const liked = like.some((item) => item.user_id === user_id);
         setIsLiked(liked);
@@ -57,7 +75,7 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     accessibilityRole="button"
                     accessibilityLabel="Like bài viết"
                     style={[styles.likeButton, isLiked && styles.likeButtonActive]}
-                    onPress={handleCreateLike}
+                    onPress={isLiked ? handledeletelike : handleCreateLike}
                 >
                     <MaterialIcons
                         name={isLiked ? 'favorite' : 'favorite-border'}

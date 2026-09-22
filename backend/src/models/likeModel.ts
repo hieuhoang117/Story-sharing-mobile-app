@@ -7,6 +7,7 @@ const Like = {
     return await prisma.likes.findMany({
       where: {post_id: id},
       select:{
+        id:true,
         user_id:true
       }
     })

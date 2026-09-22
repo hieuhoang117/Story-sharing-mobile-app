@@ -9,16 +9,16 @@ export const getPostById = async (id: string) => {
 export const getPostByUserId = async (user_id: string) => {
   return await Post.getpostbyuserid(user_id);
 };
-export const getallpost=async()=>{
+export const getallpost = async () => {
   return await Post.getallpost();
 };
-export const getpostpic=async (post_id:string)=>{
+export const getpostpic = async (post_id: string) => {
   return await Post.getpictrbypost(post_id);
 }
 
 
 //like---------------------------------------------------
-export const getlikesbypost=async (post_id:string)=>{
+export const getlikesbypost = async (post_id: string) => {
   return await Like.getpostlike(post_id);
 };
 
@@ -28,5 +28,10 @@ export const createLike = async (user_id: string, post_id: string) => {
       user_id,
       post_id,
     },
+  });
+};
+export const deletelike = async (id: string) => {
+  return await Like.delete({
+    where: { id },
   });
 };

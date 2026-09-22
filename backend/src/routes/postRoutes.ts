@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createLike, getAllposts, getlikebypost, getpicbypost, getPostById, getpostbyuserid } from '../controllers/postController';
+import { createLike, deleteLike, getAllposts, getlikebypost, getpicbypost, getPostById, getpostbyuserid } from '../controllers/postController';
 
 const router = Router();
 
@@ -12,5 +12,6 @@ router.get('/:id', getPostById);
 //like-----------------------
 router.post('/like/:post_id', createLike);
 router.get('/getlikebypost/:post_id',getlikebypost)
+router.delete('/deletelike/:likeid',deleteLike)
 
 export default router;
