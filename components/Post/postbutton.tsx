@@ -1,35 +1,59 @@
-import Button from '@/components/Main-menu/Button';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { getlikesbypost } from '@/services/postapi';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ThemedView } from '../themed-view';
 
-const PostButton = () => {
-    const [activeButton, setActiveButton] = useState<string | null>(null);
+interface PostButtonProps {
+    post_id: string;
+    user_id: string;
+}
 
-    const menuItems = [
-        { key: 'like', icon: 'hand.thumbsup' },
-        { key: 'comment', icon: 'bubble.left' },
-        { key: 'share', icon: 'square.and.arrow.up' },
-    ];
+const PostButton = ({ post_id, user_id }: PostButtonProps) => {
+    interface liketype {
+        user_id: string
+    }
+
+    const [like, setlike] = useState<liketype[]>([]);
+    const [isLiked, setIsLiked] = useState(false);
+
+
+    const fetchlike = async () => {
+        try {
+            const response = await getlikesbypost(post_id);
+            setlike(response.data.data); // tùy backend trả { data: [...] } hay trả thẳng mảng
+        } catch (error) {
+            console.error('get all like failed:', error);
+        }
+    }
+    const checkIsLiked = () => {
+        const liked = like.some((item) => item.user_id === user_id);
+        setIsLiked(liked);
+    };
+
+    useEffect(() => {
+        fetchlike();;
+    }, [post_id]);
+    useEffect(() => {
+        checkIsLiked();
+    }, [like, user_id]);
 
     return (
         <ThemedView style={styles.container}>
             <View style={styles.row}>
-                {menuItems.map((item) => (
-                    <Button
-                        key={item.key}
-                        isActive={activeButton === item.key}
-                        onPress={() => setActiveButton(item.key)}
-                        Icon={() => (
-                            <IconSymbol
-                                name={item.icon}
-                                size={24}
-                                color={activeButton === item.key ? '#fff' : '#888'}
-                            />
-                        )}
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Like bài viết"
+                    style={[styles.likeButton, isLiked && styles.likeButtonActive]}
+                    onPress={() => setIsLiked((value) => !value)}
+                >
+                    <MaterialIcons
+                        name={isLiked ? 'favorite' : 'favorite-border'}
+                        size={24}
+                        color={isLiked ? '#e53935' : '#666'}
                     />
-                ))}
+                    <Text style={styles.likeCount}>{like.length}</Text>
+                </Pressable>
             </View>
         </ThemedView>
     );
@@ -49,6 +73,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+    },
+    likeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        padding: 8,
+        borderRadius: 8,
+    },
+    likeButtonActive: {
+        backgroundColor: '#ffebee',
+    },
+    likeCount: {
+        color: '#666',
+        fontSize: 14,
     },
 });
 

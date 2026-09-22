@@ -100,7 +100,7 @@ export default function Post({ userId, postId }: PostProps) {
                 refreshing={loading}
                 onRefresh={fetchpicbypost}
             />
-            <PostButton />
+            <PostButton post_id={postId} user_id={userId} />
             <Modal
                 visible={modalVisible}
                 transparent={true}
