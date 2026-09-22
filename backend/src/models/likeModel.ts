@@ -3,7 +3,14 @@ import prisma from '../config/db';
 const Like = {
   create: prisma.likes.create,
   findUnique: prisma.likes.findUnique,
-  findMany: prisma.likes.findMany,
+  getpostlike:async (id:string)=>{
+    return await prisma.likes.findMany({
+      where: {post_id: id},
+      select:{
+        user_id:true
+      }
+    })
+  },
   delete: prisma.likes.delete,
 };
 

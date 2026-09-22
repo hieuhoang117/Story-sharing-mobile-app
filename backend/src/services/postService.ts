@@ -1,5 +1,7 @@
+import Like from '../models/likeModel';
 import Post from '../models/postModel';
 
+//post----------------------------------------
 export const getPostById = async (id: string) => {
   return await Post.getbyId(id);
 };
@@ -12,4 +14,10 @@ export const getallpost=async()=>{
 };
 export const getpostpic=async (post_id:string)=>{
   return await Post.getpictrbypost(post_id);
+}
+
+
+//like---------------------------------------------------
+export const getlikesbypost=async (post_id:string)=>{
+  return await Like.getpostlike(post_id);
 }
