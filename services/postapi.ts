@@ -20,5 +20,8 @@ export const createlike = (post_id: string, user_id: string) => {
 export const deletelike = (likeid: string) => {
   return api.delete(`/posts/deletelike/${likeid}`)
 }
+export const postcomment = (post_id: string, content: string, user_id: string) => {
+  return api.post(`/posts/comment/${post_id}`, { content, user_id })
+}
 
 export default api;

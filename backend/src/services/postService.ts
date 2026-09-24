@@ -16,6 +16,16 @@ export const getpostpic = async (post_id: string) => {
   return await Post.getpictrbypost(post_id);
 }
 
+export const createComment = async (post_id: string, user_id: string, content: string) => {
+  return await Post.createcoment({
+    data: {
+      user_id,
+      parent_post_id: post_id,
+      content,
+    },
+  });
+};
+
 
 //like---------------------------------------------------
 export const getlikesbypost = async (post_id: string) => {
