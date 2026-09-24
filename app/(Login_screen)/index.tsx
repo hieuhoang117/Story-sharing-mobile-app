@@ -14,7 +14,7 @@ export default function LoginScreen() {
       api.post('/users/login', { email, password })
         .then(response => {
           // Xử lý phản hồi từ API
-          setidUser(response.data.data.ser_id)
+          setidUser(response.data.data.user_id)
           setIsLoggedIn(true);
           router.replace('/main_screen');
         })

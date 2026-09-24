@@ -1,5 +1,6 @@
 import { createlike, deletelike, getlikesbypost } from '@/services/postapi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ThemedView } from '../themed-view';
@@ -86,14 +87,18 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                 </Pressable>
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Coment"
+                    accessibilityLabel="Comment"
                     style={[styles.likeButton]}
-                    //onPress={() => navigation.navigate('PostDetail')}
+                    onPress={() => router.push({
+                        pathname: '/main_screen/postdetail',
+                        params: { postid: post_id, userid: user_id },
+                    })}
                 >
                     <MaterialIcons
                         name={'comment'}
                         size={24}
-                        color={'wwhite'}
+                        color={'black'}
+                        
                     />
                     <Text style={styles.likeCount}>15</Text>
                 </Pressable>
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     likeButtonActive: {
-        backgroundColor: '#ffebee',
+       
     },
     likeCount: {
         color: '#666',
