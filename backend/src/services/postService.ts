@@ -17,13 +17,15 @@ export const getpostpic = async (post_id: string) => {
 }
 
 export const createComment = async (post_id: string, user_id: string, content: string) => {
-  return await Post.createcoment({
-    data: {
-      user_id,
-      parent_post_id: post_id,
-      content,
-    },
+  return await Post.createComment({
+    user_id,
+    parent_post_id: post_id,
+    content,
   });
+};
+
+export const getCommentsByPost = async (post_id: string) => {
+  return await Post.getCommentsByPostId(post_id);   
 };
 
 

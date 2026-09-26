@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { createComment, createLike, deleteLike, getAllposts, getlikebypost, getpicbypost, getPostById, getpostbyuserid } from '../controllers/postController';
+import {
+    createComment, createLike,
+    deleteLike, getAllposts,
+    getCommentsByPost,
+    getlikebypost, getpicbypost,
+    getPostById, getpostbyuserid
+} from '../controllers/postController';
 
 const router = Router();
 
@@ -8,6 +14,8 @@ router.get('/postbyuser/:user_id', getpostbyuserid);
 router.get('/allPost', getAllposts);
 router.get('/getpostpic/:post_id',getpicbypost)
 router.post('/comment/:post_id', createComment);
+router.post('/:post_id/comments', createComment);
+router.get('/:post_id/comments', getCommentsByPost);
 router.get('/:id', getPostById);
 
 //like-----------------------

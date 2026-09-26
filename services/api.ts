@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'http://192.168.1.23:3000/api',
+  baseURL: 'http://192.168.1.52:3000/api',
 });
 export const login = (email: string, password: string) => {
   return api.post('/users/login', { email, password });

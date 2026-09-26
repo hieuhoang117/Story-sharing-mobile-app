@@ -1,3 +1,4 @@
+import Comment from '@/components/Post/comment/comment';
 import Post from '@/components/Post/post';
 import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
@@ -10,7 +11,7 @@ export default function PostDetailScreen() {
   return (
     <View>
       <Post postId={resolvedPostId} userId={resolvedUserId} />
+      <Comment postId={resolvedPostId} />
     </View>
   );
 }
-

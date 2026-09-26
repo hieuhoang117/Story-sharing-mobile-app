@@ -2,49 +2,43 @@ import { useAuth } from '@/context/AuthContext';
 import { postcomment } from '@/services/postapi';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface CommentAuthor {
   id: string;
   username: string;
-  displayName: string | null;
-  avatarUrl: string | null;
-  isVerified: boolean;
+  display_name: string | null;
+  avatar_url: string | null;
+  is_verified: boolean;
 }
 
 interface CommentMedia {
   id: string;
   type: 'image' | 'video' | 'gif';
   url: string;
-  thumbnailUrl: string | null;
+  thumbnail_url: string | null;
   width: number | null;
   height: number | null;
-  orderIndex: number;
+  order_index: number;
 }
 
 export interface Comment {
   id: string;
-  userId: string;
-  parentPostId: string;
+  user_id: string;
   content: string;
-  visibility: 'public' | 'followers' | 'private';
-  status: 'active' | 'hidden' | 'removed';
-  removedReason: string | null;
-  likeCount: number;
-  replyCount: number;
-  repostCount: number;
-  createdAt: string;
-  updatedAt: string;
-  author: CommentAuthor;
-  media?: CommentMedia[];
-  isLikedByCurrentUser?: boolean;
-  replies?: Comment[];
+  like_count: number;
+  created_at: string;
+  users: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  };
 }
 
 interface InputCommentProps {
@@ -57,9 +51,9 @@ interface InputCommentProps {
 // Component
 // ============================================================
 const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
-  const { isLoggedIn, idUser } = useAuth(); 
+  const { isLoggedIn, idUser } = useAuth();
 
-  const [text, setText] = useState('');          
+  const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

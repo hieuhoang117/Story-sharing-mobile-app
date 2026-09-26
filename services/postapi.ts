@@ -23,5 +23,8 @@ export const deletelike = (likeid: string) => {
 export const postcomment = (post_id: string, content: string, user_id: string) => {
   return api.post(`/posts/comment/${post_id}`, { content, user_id })
 }
+export const getCommentsByPost = (post_id: string) => {
+  return api.get(`/posts/${post_id}/comments`);
+};
 
 export default api;
