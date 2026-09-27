@@ -34,21 +34,34 @@ export const createLike = async (req: Request, res: Response) => {
 };
 
 export const createComment = async (req: Request, res: Response) => {
-  try {
-    const { post_id } = req.params;
-    const { content } = req.body;
-    const user_id = (req as any).user.id;   // lấy từ token
-    const postid = Array.isArray(post_id) ? post_id[0] : post_id;
+    try {
+        const { post_id } = req.params;
+        const { content } = req.body;
+        const user_id = (req as any).user.id;   // lấy từ token
+        const postid = Array.isArray(post_id) ? post_id[0] : post_id;
 
-    if (!postid || typeof content !== 'string' || !content.trim()) {
-      return res.status(400).json({ message: 'post_id and content are required' });
+        if (!postid || typeof content !== 'string' || !content.trim()) {
+            return res.status(400).json({ message: 'post_id and content are required' });
+        }
+
+        const comment = await post.createComment(postid, user_id, content.trim());
+        return res.status(201).json({ data: comment });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating comment', error });
     }
+};
 
-    const comment = await post.createComment(postid, user_id, content.trim());
-    return res.status(201).json({ data: comment });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error creating comment', error });
-  }
+export const createPost = async (req: Request, res: Response) => {
+    try {
+        const { content } = req.body;
+        const user_id = (req as any).user.id;   // lấy từ token
+
+
+        const comment = await post.createPost(user_id, content.trim());
+        return res.status(201).json({ data: comment });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating comment', error });
+    }
 };
 
 export const deleteLike = async (req: Request, res: Response) => {
@@ -111,16 +124,16 @@ export const getpicbypost = async (req: Request, res: Response) => {
 
 
 export const getCommentsByPost = async (req: Request, res: Response) => {
-  try {
-    const { post_id } = req.params;
-    const postid = Array.isArray(post_id) ? post_id[0] : post_id;
+    try {
+        const { post_id } = req.params;
+        const postid = Array.isArray(post_id) ? post_id[0] : post_id;
 
-    const comments = await post.getCommentsByPost(postid);
+        const comments = await post.getCommentsByPost(postid);
 
-    return res.status(200).json({ data: comments ?? [] });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error fetching comments', error });
-  }
+        return res.status(200).json({ data: comments ?? [] });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching comments', error });
+    }
 };
 
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
     createComment, createLike,
+    createPost,
     deleteLike, getAllposts,
     getCommentsByPost,
     getlikebypost, getpicbypost,
@@ -13,6 +14,7 @@ const router = Router();
 //post-----------------------
 router.get('/postbyuser/:user_id', getpostbyuserid);
 router.get('/allPost', getAllposts);
+router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);
 router.get('/:post_id/comments', getCommentsByPost);
 router.post('/:post_id/comments', verifyToken, createComment);  

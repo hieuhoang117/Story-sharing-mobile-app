@@ -24,6 +24,13 @@ export const createComment = async (post_id: string, user_id: string, content: s
   });
 };
 
+export const createPost = async ( user_id: string, content: string) => {
+  return await Post.createPost({
+    user_id,
+    content,
+  });
+};
+
 export const getCommentsByPost = async (post_id: string) => {
   return await Post.getCommentsByPostId(post_id);   
 };

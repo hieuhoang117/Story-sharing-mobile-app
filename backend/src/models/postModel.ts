@@ -1,6 +1,28 @@
 import prisma from '../config/db';
 
 const Post = {
+    createPost: async (params: { user_id: string; content: string }) => {
+        const { user_id, content } = params;
+
+        const post = await prisma.posts.create({
+            data: {
+                user_id,
+                content,
+                visibility: 'public',
+                status: 'active',
+            },
+            select: {
+                id: true,
+                user_id: true,
+                parent_post_id: true,
+                content: true,
+                status: true,
+                created_at: true,
+            },
+        });
+
+        return post;
+    },
     getbyId: async (id: string) => {
         return await prisma.posts.findFirst({
             where: { id, parent_post_id: null },
@@ -16,8 +38,8 @@ const Post = {
     getallpost: async () => {
         return await prisma.posts.findMany({
             where: {
-                parent_post_id: null,   // chỉ lấy post gốc, loại bỏ comment
-                status: 'active',        // nên thêm luôn, tránh hiện post đã bị ẩn/xóa
+                parent_post_id: null,
+                status: 'active',
             },
             select: {
                 id: true,
