@@ -13,42 +13,35 @@ interface PostButtonProps {
 const PostButton = ({ post_id, user_id }: PostButtonProps) => {
     interface liketype {
         user_id: string;
-        id: string
+        id: string;
     }
 
     const [like, setlike] = useState<liketype[]>([]);
     const [isLiked, setIsLiked] = useState(false);
 
-
     const fetchlike = async () => {
         try {
             const response = await getlikesbypost(post_id);
-            setlike(response.data.data); // tùy backend trả { data: [...] } hay trả thẳng mảng
+            setlike(response.data.data);
         } catch (error) {
             console.error('get all like failed:', error);
         }
-    }
+    };
+
     const handleCreateLike = async () => {
-        if (isLiked) {
-            setIsLiked(false);
-            fetchlike();
-        }
         try {
-            await createlike(post_id, user_id);
+            await createlike(post_id);   // đã sửa: bỏ user_id
             await fetchlike();
         } catch (error) {
             console.error('create like failed:', error);
         }
-    }
+    };
+
     const handledeletelike = async () => {
-        if (!isLiked) {
-            return;
-        }
+        if (!isLiked) return;
 
         const currentLike = like.find((item) => item.user_id === user_id);
-        if (!currentLike) {
-            return;
-        }
+        if (!currentLike) return;
 
         try {
             await deletelike(currentLike.id);
@@ -57,14 +50,16 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
             console.error('delete like failed:', error);
         }
     };
+
     const checkIsLiked = () => {
         const liked = like.some((item) => item.user_id === user_id);
         setIsLiked(liked);
     };
 
     useEffect(() => {
-        fetchlike();;
+        fetchlike();
     }, [post_id]);
+
     useEffect(() => {
         checkIsLiked();
     }, [like, user_id]);
@@ -85,6 +80,7 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     />
                     <Text style={styles.likeCount}>{like.length}</Text>
                 </Pressable>
+
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Comment"
@@ -94,29 +90,19 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                         params: { postid: post_id, userid: user_id },
                     })}
                 >
-                    <MaterialIcons
-                        name={'comment'}
-                        size={24}
-                        color={'black'}
-                        
-                    />
+                    <MaterialIcons name={'comment'} size={24} color={'black'} />
                     <Text style={styles.likeCount}>15</Text>
                 </Pressable>
+
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Coment"
+                    accessibilityLabel="Share"
                     style={[styles.likeButton]}
-                //onPress={isLiked ? handledeletelike : handleCreateLike}
                 >
-                    <MaterialIcons
-                        name={'share'}
-                        size={24}
-                        color={'wwhite'}
-                    />
+                    <MaterialIcons name={'share'} size={24} color={'black'} />
                     <Text style={styles.likeCount}>20</Text>
                 </Pressable>
             </View>
-
         </ThemedView>
     );
 };
@@ -127,8 +113,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         bottom: 0,
         left: 0,
-        backgroundColor: 'transparent'
-
+        backgroundColor: 'transparent',
     },
     row: {
         width: '100%',
@@ -143,9 +128,7 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 8,
     },
-    likeButtonActive: {
-       
-    },
+    likeButtonActive: {},
     likeCount: {
         color: '#666',
         fontSize: 14,

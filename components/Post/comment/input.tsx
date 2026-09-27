@@ -10,24 +10,6 @@ import {
   View,
 } from 'react-native';
 
-interface CommentAuthor {
-  id: string;
-  username: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  is_verified: boolean;
-}
-
-interface CommentMedia {
-  id: string;
-  type: 'image' | 'video' | 'gif';
-  url: string;
-  thumbnail_url: string | null;
-  width: number | null;
-  height: number | null;
-  order_index: number;
-}
-
 export interface Comment {
   id: string;
   user_id: string;
@@ -43,15 +25,11 @@ export interface Comment {
 
 interface InputCommentProps {
   postId: string;
-  // gọi lại khi gửi thành công, để màn hình cha thêm comment mới vào list
   onCommentCreated?: (comment: Comment) => void;
 }
 
-// ============================================================
-// Component
-// ============================================================
 const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
-  const { isLoggedIn, idUser, displayname, avatar } = useAuth();
+  const { isLoggedIn, idUser, displayname, avatar, username } = useAuth();
 
   const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,14 +52,14 @@ const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
         throw new Error('Không tìm thấy người dùng hiện tại');
       }
 
-      const response = await postcomment(postId, trimmed, idUser);
+      const response = await postcomment(postId, trimmed);
       const created = response.data.data ?? response.data;
 
       const newComment: Comment = {
         ...created,
         like_count: created.like_count ?? 0,
         users: {
-          username: displayname,       
+          username: username,
           display_name: displayname,
           avatar_url: avatar,
         },
@@ -127,14 +105,8 @@ const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 8,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 8,
-  },
+  container: { padding: 8 },
+  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   input: {
     flex: 1,
     borderWidth: 1,
@@ -152,18 +124,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sendButtonDisabled: {
-    backgroundColor: '#B0C4DE',
-  },
-  sendButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: 'red',
-    fontSize: 12,
-    marginTop: 4,
-  },
+  sendButtonDisabled: { backgroundColor: '#B0C4DE' },
+  sendButtonText: { color: '#fff', fontWeight: '600' },
+  error: { color: 'red', fontSize: 12, marginTop: 4 },
 });
 
 export default InputComment;
