@@ -5,6 +5,10 @@ type AuthContextType = {
   setIsLoggedIn: (value: boolean) => void;
   idUser: string;
   setidUser: (value: string) => void;
+  avatar:string;
+  setavatar:(value:string)=>void;
+  displayname:string;
+  setdisplayname:(value:string)=>void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,9 +16,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idUser, setidUser] = useState('');
+  const [avatar,setavatar]=useState('');
+  const [displayname,setdisplayname]=useState('');
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, idUser, setidUser }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, idUser, setidUser,avatar,setavatar,displayname,setdisplayname }}>
       {children}
     </AuthContext.Provider>
   );

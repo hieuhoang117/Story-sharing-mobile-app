@@ -51,7 +51,7 @@ interface InputCommentProps {
 // Component
 // ============================================================
 const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
-  const { isLoggedIn, idUser } = useAuth();
+  const { isLoggedIn, idUser, displayname, avatar } = useAuth();
 
   const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,7 +75,17 @@ const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
       }
 
       const response = await postcomment(postId, trimmed, idUser);
-      const newComment: Comment = response.data.data ?? response.data;
+      const created = response.data.data ?? response.data;
+
+      const newComment: Comment = {
+        ...created,
+        like_count: created.like_count ?? 0,
+        users: {
+          username: displayname,       
+          display_name: displayname,
+          avatar_url: avatar,
+        },
+      };
       onCommentCreated?.(newComment);
       setText('');
     } catch (err) {

@@ -7,14 +7,17 @@ import api from '../../services/api';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setIsLoggedIn,setidUser } = useAuth();
+  const { setIsLoggedIn,setidUser,setavatar,setdisplayname } = useAuth();
+
 
   const handleLogin = () => {
     try {
       api.post('/users/login', { email, password })
         .then(response => {
           // Xử lý phản hồi từ API
-          setidUser(response.data.data.id)
+          setidUser(response.data.data.id);
+          setavatar(response.data.data.avatar_url);
+          setdisplayname(response.data.data.display_name)
           setIsLoggedIn(true);
           router.replace('/main_screen');
         })
@@ -26,7 +29,22 @@ export default function LoginScreen() {
       console.error('An error occurred during login:', error);
     }
   };
-  const stylebackgroud = StyleSheet.create({
+
+  return (
+    <View style={ stylebackgroud.background }>
+      <Image source={require('../../assets/images/Logo.png')} style={{ width: 100, height: 100, marginBottom: 20 }} />
+      <TextInput textContentType="emailAddress" placeholderTextColor="gray" style={ styleinput.input } placeholder="Email" value={email} onChangeText={setEmail} />
+      <TextInput textContentType="password" placeholderTextColor="gray" style={ styleinput.input } placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      <Pressable style={ stylebutton.button } onPress={handleLogin}>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Đăng nhập</Text>
+      </Pressable>
+      <Pressable onPress={() => router.push('/')}>
+        <Text style={{ color: '#007bff', marginTop: 10 }}>Quên mật khẩu?</Text>
+      </Pressable>
+    </View>
+  );
+}
+ const stylebackgroud = StyleSheet.create({
     background: {
       flex: 1,
       justifyContent: 'center',
@@ -56,18 +74,3 @@ export default function LoginScreen() {
       borderRadius: 20,
     },
   });
-
-  return (
-    <View style={ stylebackgroud.background }>
-      <Image source={require('../../assets/images/Logo.png')} style={{ width: 100, height: 100, marginBottom: 20 }} />
-      <TextInput textContentType="emailAddress" placeholderTextColor="gray" style={ styleinput.input } placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput textContentType="password" placeholderTextColor="gray" style={ styleinput.input } placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Pressable style={ stylebutton.button } onPress={handleLogin}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Đăng nhập</Text>
-      </Pressable>
-      <Pressable onPress={() => router.push('/')}>
-        <Text style={{ color: '#007bff', marginTop: 10 }}>Quên mật khẩu?</Text>
-      </Pressable>
-    </View>
-  );
-}
