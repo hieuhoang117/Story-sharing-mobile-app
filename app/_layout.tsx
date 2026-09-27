@@ -7,12 +7,12 @@ function RootNavigation() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!isLoggedIn}>
-        <Stack.Screen name="(Login_screen)" />
+        <Stack.Screen name="(Login_screen)" options={{headerBackButtonDisplayMode: 'minimal'}}/>
       </Stack.Protected>
 
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="main_screen" />
-        <Stack.Screen name="profile" />
+        <Stack.Screen name="profile"  options={{headerBackButtonDisplayMode: 'minimal'}}/>
       </Stack.Protected>
     </Stack>
   );

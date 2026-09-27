@@ -105,7 +105,9 @@ const InputComment = ({ postId, onCommentCreated }: InputCommentProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 8 },
+  container: {
+    padding: 8,
+  },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   input: {
     flex: 1,

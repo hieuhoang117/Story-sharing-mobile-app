@@ -41,7 +41,6 @@ const Comment = ({ postId }: CommentSectionProps) => {
 
     return (
         <View style={styles.container}>
-            <InputComment postId={postId} onCommentCreated={handleCommentCreated} />
 
             {loading ? (
                 <ActivityIndicator size="small" style={{ marginTop: 12 }} />
@@ -69,6 +68,7 @@ const Comment = ({ postId }: CommentSectionProps) => {
                     )}
                 />
             )}
+            <InputComment postId={postId} onCommentCreated={handleCommentCreated} />
         </View>
     );
 };
