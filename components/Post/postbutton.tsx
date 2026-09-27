@@ -8,9 +8,10 @@ import { ThemedView } from '../themed-view';
 interface PostButtonProps {
     post_id: string;
     user_id: string;
+    comentcout:number;
 }
 
-const PostButton = ({ post_id, user_id }: PostButtonProps) => {
+const PostButton = ({ post_id, user_id,comentcout }: PostButtonProps) => {
     interface liketype {
         user_id: string;
         id: string;
@@ -91,7 +92,7 @@ const PostButton = ({ post_id, user_id }: PostButtonProps) => {
                     })}
                 >
                     <MaterialIcons name={'comment'} size={24} color={'black'} />
-                    <Text style={styles.likeCount}>15</Text>
+                    <Text style={styles.likeCount}>{comentcout}</Text>
                 </Pressable>
 
                 <Pressable

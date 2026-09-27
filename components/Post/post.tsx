@@ -1,4 +1,4 @@
-import { getpicbypost, getpostById } from '@/services/postapi';
+import { getCommentsByPost, getpicbypost, getpostById } from '@/services/postapi';
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { getUserById } from '../../services/api';
@@ -8,26 +8,37 @@ interface PostProps {
     userId: string;
     postId: string;
 }
-
+interface PostType {
+    id: string,
+    user_id: string,
+    content: string,
+    created_at: string,
+    updated_at: string
+}
+interface UserType {
+    id: string,
+    username: string,
+    display_name: string,
+    email: string,
+    avatar_url: string
+}
+interface postpic {
+    url: string
+}
+interface Comment {
+    id: string;
+    user_id: string;
+    content: string;
+    like_count: number;
+    created_at: string;
+    users: {
+        username: string;
+        display_name: string | null;
+        avatar_url: string | null;
+    };
+}
 export default function Post({ userId, postId }: PostProps) {
 
-    interface PostType {
-        id: string,
-        user_id: string,
-        content: string,
-        created_at: string,
-        updated_at: string
-    }
-    interface UserType {
-        id: string,
-        username: string,
-        display_name: string,
-        email: string,
-        avatar_url: string
-    }
-    interface postpic {
-        url: string
-    }
 
     const [post, setPost] = useState<PostType | null>(null);
     const [user, setUser] = useState<UserType | null>(null);
@@ -35,6 +46,19 @@ export default function Post({ userId, postId }: PostProps) {
     const [loading, setLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    const fetchComments = async () => {
+        setLoading(true);
+        try {
+            const response = await getCommentsByPost(postId);
+            setComments(response.data.data ?? []);
+        } catch (error) {
+            console.error('get comments failed:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchuser = async () => {
         getUserById(userId)
@@ -72,6 +96,7 @@ export default function Post({ userId, postId }: PostProps) {
         fetchuser();
         fetchPostById();
         fetchpicbypost();
+        fetchComments();
     }, []);
 
 
@@ -100,7 +125,7 @@ export default function Post({ userId, postId }: PostProps) {
                 refreshing={loading}
                 onRefresh={fetchpicbypost}
             />
-            <PostButton post_id={postId} user_id={userId} />
+            <PostButton post_id={postId} user_id={userId} comentcout={comments.length} />
             <Modal
                 visible={modalVisible}
                 transparent={true}
