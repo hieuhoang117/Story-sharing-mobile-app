@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import * as userService from '../services/userService';
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -38,8 +39,20 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     console.log('Email:', email);
+
     const user = await userService.loginUser(email, password);
-    res.status(200).json({ message: 'Login successful', data: user });
+
+    // Tạo token ngay tại đây, sau khi đã có "user" và trong phạm vi có "res"
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({
+      message: 'Login successful',
+      data: { ...user, token },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
     res.status(401).json({ message: 'Login failed', error: message });

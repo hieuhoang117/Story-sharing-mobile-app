@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import { registerUser, getUsers,getUserById, loginUser } from '../controllers/userController';
-
+import { getUserById, getUsers, loginUser, registerUser } from '../controllers/userController';
+import { verifyToken } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/register', registerUser);
-router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.post('/login', loginUser);
+router.post('/register', registerUser);   
+router.post('/login', loginUser);          
 
-
+router.get('/', verifyToken, getUsers);         
+router.get('/:id', verifyToken, getUserById);   
 
 export default router;
