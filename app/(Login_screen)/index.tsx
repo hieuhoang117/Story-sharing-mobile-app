@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -11,6 +11,10 @@ export default function LoginScreen() {
   const { setIsLoggedIn, setidUser, setavatar, setdisplayname, setusername } = useAuth();
 
   const handleLogin = () => {
+    if (email == null||email.length == 0 || password == null|| password.length == 0) {
+      Alert.alert('Thông báo', 'Hãy nhập tài khoản và mật khẩu');
+      return
+    }
     try {
       api.post('/users/login', { email, password })
         .then(async response => {
@@ -26,7 +30,7 @@ export default function LoginScreen() {
           router.replace('/main_screen');
         })
         .catch(error => {
-          console.error('Login failed:', error);
+          Alert.alert('Thông báo', 'Sai tai khoan hoac mat khau');
         });
     } catch (error) {
       console.error('An error occurred during login:', error);
