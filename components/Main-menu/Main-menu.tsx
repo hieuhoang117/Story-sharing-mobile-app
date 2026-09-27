@@ -45,11 +45,13 @@ const MainMenu = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    alignItems: 'center',
+    width: '90%',
+    alignItems:'center',
     position: 'absolute',
-    bottom: 0,
-    left: 0,
+    bottom: 10,
+    alignSelf:'center',
+    borderRadius:30,
+    padding:5,
   },
   row: {
     width: '100%',
