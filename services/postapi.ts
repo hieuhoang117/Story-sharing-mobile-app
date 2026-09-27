@@ -21,6 +21,10 @@ export const createlike = (post_id: string) => {
 export const deletelike = (likeid: string) => {
   return api.delete(`/posts/deletelike/${likeid}`);
 };
+export const createPost = ( content: string) => {
+  return api.post(`/posts/creatPost`, { content });
+};
+
 
 //comment---------------
 export const postcomment = (post_id: string, content: string) => {

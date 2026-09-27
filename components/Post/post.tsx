@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     text: {
+        alignSelf:'flex-start',
         color: 'black',
     },
     avartar: {
