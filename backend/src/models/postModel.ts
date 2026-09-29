@@ -126,6 +126,17 @@ const Post = {
             data: { status },
         });
     },
+    updateVisibility: async (id: string, visibility: 'public' | 'followers' | 'private') => {
+        return await prisma.posts.update({
+            where: { id },
+            data: { visibility },
+            select: {
+                id: true,
+                user_id: true,
+                visibility: true,
+            },
+        });
+    },
     createComment: async (params: { user_id: string; parent_post_id: string; content: string }) => {
         const { user_id, parent_post_id, content } = params;
 

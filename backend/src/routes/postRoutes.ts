@@ -5,7 +5,7 @@ import {
     deleteLike, getAllposts,
     getCommentsByPost,
     getlikebypost, getpicbypost,
-    getPostById, getpostbyuserid, searchPosts
+    getPostById, getpostbyuserid, searchPosts, updatePostVisibility
 } from '../controllers/postController';
 import { verifyToken } from '../middlewares/authMiddleware';
 import { upload } from '../middlewares/uploadMiddleware';
@@ -18,6 +18,7 @@ router.get('/allPost', getAllposts);
 router.get('/search', searchPosts);
 router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);
+router.patch('/:post_id/visibility', verifyToken, updatePostVisibility);
 router.post('/:post_id/media', verifyToken, upload.single('image'), addPostImage);
 router.get('/:post_id/comments', getCommentsByPost);
 router.post('/:post_id/comments', verifyToken, createComment);  

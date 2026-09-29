@@ -7,6 +7,9 @@ export type PostVisibility = 'public' | 'followers' | 'private';
 export const getPostById = async (id: string) => {
   return await Post.getbyId(id);
 };
+export const updatePostVisibility = async (id: string, visibility: PostVisibility) => {
+  return await Post.updateVisibility(id, visibility);
+};
 
 export const getPostByUserId = async (user_id: string) => {
   return await Post.getpostbyuserid(user_id);

@@ -52,6 +52,37 @@ export const getPostById = async (req: Request, res: Response) => {
     }
 };
 
+    export const updatePostVisibility = async (req: Request, res: Response) => {
+        try {
+            const { post_id } = req.params;
+            const postId = Array.isArray(post_id) ? post_id[0] : post_id;
+            const { visibility } = req.body as { visibility?: string };
+            const allowedVisibilities = ['public', 'followers', 'private'];
+
+            if (!postId || !allowedVisibilities.includes(visibility ?? '')) {
+                return res.status(400).json({ message: 'Valid post_id and visibility are required' });
+            }
+
+            const postData = await post.getPostById(postId);
+            if (!postData) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            const userId = (req as any).user.id as string;
+            if (postData.user_id !== userId) {
+                return res.status(403).json({ message: 'Only the post owner can update visibility' });
+            }
+
+            const updatedPost = await post.updatePostVisibility(
+                postId,
+                visibility as post.PostVisibility,
+            );
+            return res.status(200).json({ message: 'Post visibility updated', data: updatedPost });
+        } catch (error) {
+            return res.status(500).json({ message: 'Error updating post visibility', error });
+        }
+    };
+
 export const createLike = async (req: Request, res: Response) => {
     try {
         const { post_id } = req.params;
