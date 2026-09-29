@@ -53,6 +53,7 @@ const Post = {
                 id: true,
                 user_id: true,
                 content: true,
+                visibility: true,
                 created_at: true,
                 updated_at: true,
             },

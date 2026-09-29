@@ -30,6 +30,9 @@ export const deletelike = (likeid: string) => {
 export const createPost = (content: string, visibility: PostVisibility = 'public') => {
   return api.post(`/posts/creatPost`, { content, visibility });
 };
+export const updatePostVisibility = (postId: string, visibility: PostVisibility) => {
+  return api.patch(`/posts/${postId}/visibility`, { visibility });
+};
 
 export const uploadPostImage = (postId: string, image: ImagePickerAsset) => {
   const formData = new FormData();
