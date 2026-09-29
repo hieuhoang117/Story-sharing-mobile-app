@@ -1,3 +1,4 @@
+import type { ImagePickerAsset } from 'expo-image-picker';
 import api from './api';
 
 //post------------------------
@@ -23,6 +24,19 @@ export const deletelike = (likeid: string) => {
 };
 export const createPost = ( content: string) => {
   return api.post(`/posts/creatPost`, { content });
+};
+
+export const uploadPostImage = (postId: string, image: ImagePickerAsset) => {
+  const formData = new FormData();
+  formData.append('image', {
+    uri: image.uri,
+    name: image.fileName ?? 'post-image.jpg',
+    type: image.mimeType ?? 'image/jpeg',
+  } as unknown as Blob);
+
+  return api.post(`/posts/${postId}/media`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 

@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Image,
     KeyboardAvoidingView,
     Platform,
@@ -15,24 +17,76 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
-import { createPost } from '../../services/postapi';
+import { createPost, uploadPostImage } from '../../services/postapi';
+
+const MAX_POST_IMAGES = 5;
 
 export default function CreatePost() {
     const { avatar, displayname, username } = useAuth();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [pic,setpic]=useState('');
+    const [pics, setPics] = useState<ImagePicker.ImagePickerAsset[]>([]);
+    const [createdPostId, setCreatedPostId] = useState<string | null>(null);
+    const uploadedImageUris = useRef(new Set<string>());
+
+    const handlePickImage = async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsMultipleSelection: true,
+                selectionLimit: MAX_POST_IMAGES - pics.length,
+                quality: 0.8,
+            });
+
+            if (!result.canceled) {
+                const oversizedImage = result.assets.find((image) => (image.fileSize ?? 0) > 5 * 1024 * 1024);
+                if (oversizedImage) {
+                    Alert.alert('Ảnh quá lớn', 'Mỗi ảnh phải nhỏ hơn 5 MB.');
+                    return;
+                }
+
+                setPics((currentPics) => {
+                    const currentUris = new Set(currentPics.map((image) => image.uri));
+                    const newImages = result.assets.filter((image) => !currentUris.has(image.uri));
+                    return [...currentPics, ...newImages].slice(0, MAX_POST_IMAGES);
+                });
+            }
+        } catch (error) {
+            console.error('Chọn ảnh thất bại:', error);
+            Alert.alert('Không thể chọn ảnh', 'Vui lòng thử lại.');
+        }
+    };
 
     const handleSubmit = async () => {
         const trimmedContent = content.trim();
-        if (!trimmedContent || isSubmitting) return;
+        if ((!trimmedContent && !createdPostId) || isSubmitting) return;
 
         setIsSubmitting(true);
+        let postWasCreated = Boolean(createdPostId);
         try {
-            await createPost(trimmedContent);
+            let postId = createdPostId;
+            if (!postId) {
+                const response = await createPost(trimmedContent);
+                postId = response.data.data.id;
+                if (!postId) throw new Error('API không trả về post ID');
+            postWasCreated = true;
+                setCreatedPostId(postId);
+            }
+
+            for (const image of pics) {
+                if (uploadedImageUris.current.has(image.uri)) continue;
+                await uploadPostImage(postId, image);
+                uploadedImageUris.current.add(image.uri);
+            }
             router.back();
         } catch (error) {
             console.error('Tạo post thất bại:', error);
+            Alert.alert(
+                postWasCreated ? 'Ảnh chưa được tải lên' : 'Không thể đăng bài',
+                postWasCreated
+                    ? 'Bài viết đã được tạo. Nhấn "Thử lại" để tải ảnh lên.'
+                    : 'Vui lòng thử lại sau.',
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -82,6 +136,7 @@ export default function CreatePost() {
                             value={content}
                             onChangeText={setContent}
                             multiline
+                            editable={!createdPostId}
                             maxLength={1000}
                             textAlignVertical="top"
                             selectionColor="#D66C53"
@@ -96,16 +151,51 @@ export default function CreatePost() {
                         </View>
                     </View>
 
+                    {pics.length > 0 && (
+                        <View style={styles.imageSection}>
+                            <Text style={styles.imageCount}>{pics.length}/{MAX_POST_IMAGES} ảnh</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                <View style={styles.imagePreviewRow}>
+                                    {pics.map((image) => (
+                                        <View key={image.uri} style={styles.imagePreviewContainer}>
+                                            <Image source={{ uri: image.uri }} style={styles.imagePreview} />
+                                            <Pressable
+                                                style={styles.removeImageButton}
+                                                onPress={() => setPics((currentPics) => currentPics.filter((pic) => pic.uri !== image.uri))}
+                                                disabled={isSubmitting || Boolean(createdPostId)}
+                                                accessibilityRole="button"
+                                                accessibilityLabel="Xóa ảnh đã chọn"
+                                            >
+                                                <Ionicons name="close" size={18} color="#FFFFFF" />
+                                            </Pressable>
+                                        </View>
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        </View>
+                    )}
+
+                    <Pressable
+                        style={[styles.addImageButton, pics.length >= MAX_POST_IMAGES && styles.addImageButtonDisabled]}
+                        onPress={handlePickImage}
+                        disabled={isSubmitting || Boolean(createdPostId) || pics.length >= MAX_POST_IMAGES}
+                        accessibilityRole="button"
+                        accessibilityLabel="Thêm ảnh vào bài viết"
+                    >
+                        <Ionicons name="image-outline" size={19} color="#315B4B" />
+                        <Text style={styles.addImageText}>{pics.length >= MAX_POST_IMAGES ? 'Đã đủ 5 ảnh' : 'Thêm ảnh'}</Text>
+                    </Pressable>
+
                     <View style={styles.bottomArea}>
                         <Text style={styles.footerNote}>Câu chuyện của bạn sẽ xuất hiện trên bảng tin.</Text>
                         <Pressable
                             style={({ pressed }) => [
                                 styles.submitButton,
-                                (!content.trim() || isSubmitting) && styles.submitButtonDisabled,
-                                pressed && content.trim() && !isSubmitting && styles.submitButtonPressed,
+                                ((!content.trim() && !createdPostId) || isSubmitting) && styles.submitButtonDisabled,
+                                pressed && (content.trim() || createdPostId) && !isSubmitting && styles.submitButtonPressed,
                             ]}
                             onPress={handleSubmit}
-                            disabled={!content.trim() || isSubmitting}
+                            disabled={(!content.trim() && !createdPostId) || isSubmitting}
                             accessibilityRole="button"
                             accessibilityLabel="Đăng bài viết"
                         >
@@ -113,8 +203,8 @@ export default function CreatePost() {
                                 <ActivityIndicator color="#FFFFFF" size="small" />
                             ) : (
                                 <>
-                                    <Text style={styles.submitText}>Đăng bài</Text>
-                                    <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+                                    <Text style={styles.submitText}>{createdPostId ? 'Thử lại' : 'Đăng bài'}</Text>
+                                    <Ionicons name={createdPostId ? 'refresh' : 'arrow-forward'} size={18} color="#FFFFFF" />
                                 </>
                             )}
                         </Pressable>
@@ -236,6 +326,61 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingTop: 12,
+    },
+    imageSection: {
+        marginTop: 16,
+    },
+    imageCount: {
+        color: '#74847A',
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    imagePreviewRow: {
+        flexDirection: 'row',
+        gap: 10,
+        paddingRight: 4,
+    },
+    imagePreviewContainer: {
+        borderRadius: 14,
+        height: 108,
+        overflow: 'hidden',
+        position: 'relative',
+        width: 108,
+    },
+    imagePreview: {
+        height: '100%',
+        width: '100%',
+    },
+    removeImageButton: {
+        alignItems: 'center',
+        backgroundColor: 'rgba(24, 59, 49, 0.82)',
+        borderRadius: 14,
+        height: 28,
+        justifyContent: 'center',
+        position: 'absolute',
+        right: 6,
+        top: 6,
+        width: 28,
+    },
+    addImageButton: {
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        backgroundColor: '#E3ECE5',
+        borderRadius: 12,
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 14,
+        minHeight: 42,
+        paddingHorizontal: 14,
+    },
+    addImageText: {
+        color: '#315B4B',
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    addImageButtonDisabled: {
+        opacity: 0.55,
     },
     writingHint: {
         alignItems: 'center',
