@@ -21,6 +21,20 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const searchUsers = async (req: Request, res: Response) => {
+  try {
+    const username = typeof req.query.username === 'string' ? req.query.username.trim() : '';
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+
+    const users = await userService.searchUsersByUsername(username);
+    res.status(200).json({ data: users });
+  } catch (error) {
+    res.status(500).json({ message: 'Error searching users', error });
+  }
+};
+
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

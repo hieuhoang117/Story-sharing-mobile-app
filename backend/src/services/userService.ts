@@ -35,6 +35,25 @@ export const getAllUsers = async () => {
   });
 };
 
+export const searchUsersByUsername = async (username: string) => {
+  return await User.findMany({
+    where: {
+      username: { contains: username },
+      status: 'active',
+    },
+    select: {
+      id: true,
+      username: true,
+      display_name: true,
+      avatar_url: true,
+      bio: true,
+      is_verified: true,
+    },
+    orderBy: { username: 'asc' },
+    take: 20,
+  });
+};
+
 export const loginUser = async (email: string, password: string) => {
   const user = await getUserByEmail(email);
   if (!user) {

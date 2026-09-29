@@ -143,6 +143,20 @@ export const getAllposts = async (req: Request, res: Response) => {
     }
 
 };
+export const searchPosts = async (req: Request, res: Response) => {
+    try {
+        const keyword = typeof req.query.keyword === 'string' ? req.query.keyword.trim() : '';
+        if (!keyword) {
+            return res.status(400).json({ message: 'Keyword is required' });
+        }
+
+        const postData = await post.searchPosts(keyword);
+        return res.status(200).json({ data: postData });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error searching posts', error });
+    }
+};
+
 export const getpicbypost = async (req: Request, res: Response) => {
     try {
         const { post_id } = req.params;

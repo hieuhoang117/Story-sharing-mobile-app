@@ -73,6 +73,28 @@ const Post = {
             orderBy: { created_at: 'desc' },   // nên thêm, để post mới nhất hiện lên đầu
         })
     },
+    searchPosts: async (keyword: string) => {
+        return await prisma.posts.findMany({
+            where: {
+                parent_post_id: null,
+                status: 'active',
+                visibility: 'public',
+                OR: [
+                    { content: { contains: keyword } },
+                    { post_hashtags: { some: { hashtags: { tag: { contains: keyword } } } } },
+                ],
+            },
+            select: {
+                id: true,
+                user_id: true,
+                content: true,
+                created_at: true,
+                updated_at: true,
+            },
+            orderBy: { created_at: 'desc' },
+            take: 20,
+        });
+    },
     getpostbyuserid: async (user_id: string) => {
         return await prisma.posts.findMany({
             where: {
@@ -159,6 +181,7 @@ const Post = {
     delete: async (id: string) => {
         return await prisma.posts.delete({ where: { id } });
     },
+    
 };
 
 export default Post;

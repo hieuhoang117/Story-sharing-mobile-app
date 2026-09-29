@@ -5,7 +5,7 @@ import {
     deleteLike, getAllposts,
     getCommentsByPost,
     getlikebypost, getpicbypost,
-    getPostById, getpostbyuserid
+    getPostById, getpostbyuserid, searchPosts
 } from '../controllers/postController';
 import { verifyToken } from '../middlewares/authMiddleware';
 import { upload } from '../middlewares/uploadMiddleware';
@@ -15,6 +15,7 @@ const router = Router();
 //post-----------------------
 router.get('/postbyuser/:user_id', getpostbyuserid);
 router.get('/allPost', getAllposts);
+router.get('/search', searchPosts);
 router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);
 router.post('/:post_id/media', verifyToken, upload.single('image'), addPostImage);
