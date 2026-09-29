@@ -104,8 +104,11 @@ export default function Post({ userId, postId }: PostProps) {
     return (
         <View style={styles.container}>
             <View style={styles.heading}>
-                <Image style={styles.avartar} source={{ uri: user?.avatar_url }}></Image>
-                <Text style={styles.displayName}>{user?.display_name}</Text>
+                <Image style={styles.avatar} source={{ uri: user?.avatar_url }} />
+                <View style={styles.userInfo}>
+                    <Text style={styles.displayName}>{user?.display_name}</Text>
+                    <Text style={styles.username}>{user?.username}</Text>
+                </View>
             </View>
 
             <Text style={styles.text}>{post?.content}</Text>
@@ -155,19 +158,32 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     displayName: {
-        color: 'black',
-        fontWeight: 'bold',
-        alignSelf: 'flex-start',
+        color: '#171717',
+        fontSize: 16,
+        fontWeight: '700',
+        lineHeight: 20,
+    },
+    username: {
+        color: '#777777',
+        fontSize: 13,
+        lineHeight: 18,
+        marginTop: 2,
+    },
+    userInfo: {
+        flex: 1,
+        justifyContent: 'center',
     },
     text: {
         alignSelf:'flex-start',
         color: 'black',
     },
-    avartar: {
+    avatar: {
         width: 50,
         height: 50,
-        borderRadius: 40,
-        alignSelf: 'flex-start',
+        borderRadius: 25,
+        borderColor: '#E8E8E8',
+        borderWidth: 1,
+        marginRight: 12,
     },
     pic: {
         width: 150,
@@ -189,7 +205,9 @@ const styles = StyleSheet.create({
     heading: {
         flexDirection: 'row',
         alignSelf: 'flex-start',
-        marginBottom: 10,
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: 12,
     }
 
 });

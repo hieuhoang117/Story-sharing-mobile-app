@@ -53,7 +53,7 @@ export default function MainScreen() {
               />
               <Text style={styles.displayName} numberOfLines={1}>{displayname || 'Bạn'}</Text>
             </View>
-            <Text style={styles.prompt}>Có gì mới?</Text>
+            <Text style={styles.prompt}>Có gì mới?...</Text>
           </Pressable>
         }
         keyExtractor={(item) => item.id}
