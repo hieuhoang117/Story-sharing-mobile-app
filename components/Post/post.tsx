@@ -58,9 +58,22 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [visibilityPickerVisible, setVisibilityPickerVisible] = useState(false);
+    const [otherPostActionsVisible, setOtherPostActionsVisible] = useState(false);
+    const [notInterested, setNotInterested] = useState(false);
     const [updatingVisibility, setUpdatingVisibility] = useState(false);
     const [deletingPost, setDeletingPost] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
+    const isOwner = idUser === userId;
+
+    const handleNotInterested = () => {
+        setOtherPostActionsVisible(false);
+        setNotInterested(true);
+    };
+
+    const handleRepost = () => {
+        setOtherPostActionsVisible(false);
+        Alert.alert('Đăng lại', 'Tính năng đăng lại chưa được kết nối.');
+    };
 
     const confirmDeletePost = () => {
         Alert.alert(
@@ -161,6 +174,7 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
         fetchComments();
     }, []);
 
+    if (notInterested) return null;
 
 
     return (
@@ -171,12 +185,14 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
                     <Text style={styles.displayName}>{user?.display_name}</Text>
                     <Text style={styles.username}>{user?.username}</Text>
                 </View>
-                {idUser === userId && post?.visibility && (
+                {idUser && post?.visibility && (
                     <Pressable
                         style={styles.visibilityMenuButton}
-                        onPress={() => setVisibilityPickerVisible(true)}
+                        onPress={() => isOwner
+                            ? setVisibilityPickerVisible(true)
+                            : setOtherPostActionsVisible(true)}
                         accessibilityRole="button"
-                        accessibilityLabel="Thay đổi đối tượng xem bài viết"
+                        accessibilityLabel={isOwner ? 'Tùy chọn bài viết của bạn' : 'Tùy chọn bài viết'}
                     >
                         <Ionicons name="ellipsis-horizontal" size={22} color="#315B4B" />
                     </Pressable>
@@ -275,6 +291,45 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
                                 </Pressable>
                             </>
                         )}
+                    </Pressable>
+                </Pressable>
+            </Modal>
+            <Modal
+                visible={otherPostActionsVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setOtherPostActionsVisible(false)}
+            >
+                <Pressable
+                    style={styles.modalBackdrop}
+                    onPress={() => setOtherPostActionsVisible(false)}
+                >
+                    <Pressable style={styles.visibilityModal} onPress={(event) => event.stopPropagation()}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Tùy chọn bài viết</Text>
+                            <Pressable
+                                style={styles.modalCloseButton}
+                                onPress={() => setOtherPostActionsVisible(false)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Đóng tùy chọn bài viết"
+                            >
+                                <Ionicons name="close" size={18} color="#52635B" />
+                            </Pressable>
+                        </View>
+                        <Pressable style={styles.otherPostAction} onPress={handleNotInterested}>
+                            <Ionicons name="eye-off-outline" size={20} color="#315B4B" />
+                            <View style={styles.visibilityDetails}>
+                                <Text style={styles.visibilityOptionText}>Không quan tâm</Text>
+                                <Text style={styles.visibilityDescription}>Ẩn bài viết này khỏi màn hình hiện tại.</Text>
+                            </View>
+                        </Pressable>
+                        <Pressable style={styles.otherPostAction} onPress={handleRepost}>
+                            <Ionicons name="repeat-outline" size={20} color="#315B4B" />
+                            <View style={styles.visibilityDetails}>
+                                <Text style={styles.visibilityOptionText}>Đăng lại</Text>
+                                <Text style={styles.visibilityDescription}>Chia sẻ bài viết này lên trang cá nhân.</Text>
+                            </View>
+                        </Pressable>
                     </Pressable>
                 </Pressable>
             </Modal>
@@ -401,6 +456,14 @@ const styles = StyleSheet.create({
         color: '#B42318',
         fontSize: 14,
         fontWeight: '700',
+    },
+    otherPostAction: {
+        alignItems: 'center',
+        borderRadius: 12,
+        flexDirection: 'row',
+        gap: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 12,
     },
     text: {
         alignSelf:'flex-start',
