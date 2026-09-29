@@ -7,6 +7,7 @@ import {
     Alert,
     Image,
     KeyboardAvoidingView,
+    Modal,
     Platform,
     Pressable,
     ScrollView,
@@ -17,13 +18,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
-import { createPost, uploadPostImage } from '../../services/postapi';
+import { createPost, uploadPostImage, type PostVisibility } from '../../services/postapi';
 
 const MAX_POST_IMAGES = 5;
+const VISIBILITY_OPTIONS = [
+    { value: 'public', label: 'Mọi người', description: 'Ai cũng có thể xem bài viết.', icon: 'earth-outline' },
+    { value: 'followers', label: 'Người theo dõi', description: 'Chỉ người theo dõi bạn mới xem được.', icon: 'people-outline' },
+    { value: 'private', label: 'Chỉ mình tôi', description: 'Chỉ bạn có thể xem bài viết.', icon: 'lock-closed-outline' },
+] as const;
 
 export default function CreatePost() {
     const { avatar, displayname, username } = useAuth();
     const [content, setContent] = useState('');
+    const [visibility, setVisibility] = useState<PostVisibility>('public');
+    const [visibilityPickerVisible, setVisibilityPickerVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [pics, setPics] = useState<ImagePicker.ImagePickerAsset[]>([]);
     const [createdPostId, setCreatedPostId] = useState<string | null>(null);
@@ -66,7 +74,7 @@ export default function CreatePost() {
         try {
             let postId = createdPostId;
             if (!postId) {
-                const response = await createPost(trimmedContent);
+                const response = await createPost(trimmedContent, visibility);
                 postId = response.data.data.id;
                 if (!postId) throw new Error('API không trả về post ID');
             postWasCreated = true;
@@ -93,6 +101,7 @@ export default function CreatePost() {
     };
 
     const authorName = displayname || username || 'Bạn';
+    const selectedVisibility = VISIBILITY_OPTIONS.find((option) => option.value === visibility)!;
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -122,10 +131,17 @@ export default function CreatePost() {
                             <Text style={styles.authorName}>{authorName}</Text>
                             <Text style={styles.username}>{username ? `@${username}` : 'Đang chia sẻ với cộng đồng'}</Text>
                         </View>
-                        <View style={styles.audience}>
-                            <Ionicons name="earth-outline" size={14} color="#315B4B" />
-                            <Text style={styles.audienceText}>Mọi người</Text>
-                        </View>
+                        <Pressable
+                            style={styles.audience}
+                            onPress={() => setVisibilityPickerVisible(true)}
+                            disabled={isSubmitting || Boolean(createdPostId)}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Đối tượng xem: ${selectedVisibility.label}`}
+                        >
+                            <Ionicons name={selectedVisibility.icon} size={14} color="#315B4B" />
+                            <Text style={styles.audienceText}>{selectedVisibility.label}</Text>
+                            <Ionicons name="chevron-down" size={13} color="#315B4B" />
+                        </Pressable>
                     </View>
 
                     <View style={styles.editor}>
@@ -187,7 +203,7 @@ export default function CreatePost() {
                     </Pressable>
 
                     <View style={styles.bottomArea}>
-                        <Text style={styles.footerNote}>Câu chuyện của bạn sẽ xuất hiện trên bảng tin.</Text>
+                        <Text style={styles.footerNote}>{selectedVisibility.description}</Text>
                         <Pressable
                             style={({ pressed }) => [
                                 styles.submitButton,
@@ -211,6 +227,58 @@ export default function CreatePost() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+            <Modal
+                visible={visibilityPickerVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setVisibilityPickerVisible(false)}
+            >
+                <Pressable
+                    style={styles.modalBackdrop}
+                    onPress={() => setVisibilityPickerVisible(false)}
+                >
+                    <Pressable
+                        style={styles.visibilityModal}
+                        onPress={(event) => event.stopPropagation()}
+                    >
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Ai có thể xem?</Text>
+                            <Pressable
+                                style={styles.modalCloseButton}
+                                onPress={() => setVisibilityPickerVisible(false)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Đóng lựa chọn quyền xem"
+                            >
+                                <Ionicons name="close" size={18} color="#52635B" />
+                            </Pressable>
+                        </View>
+                        {VISIBILITY_OPTIONS.map((option) => {
+                            const isSelected = visibility === option.value;
+                            return (
+                                <Pressable
+                                    key={option.value}
+                                    style={[styles.visibilityChoice, isSelected && styles.visibilityChoiceSelected]}
+                                    onPress={() => {
+                                        setVisibility(option.value);
+                                        setVisibilityPickerVisible(false);
+                                    }}
+                                    accessibilityRole="button"
+                                    accessibilityState={{ selected: isSelected }}
+                                >
+                                    <View style={styles.visibilityIcon}>
+                                        <Ionicons name={option.icon} size={18} color="#315B4B" />
+                                    </View>
+                                    <View style={styles.visibilityDetails}>
+                                        <Text style={styles.visibilityOptionText}>{option.label}</Text>
+                                        <Text style={styles.visibilityDescription}>{option.description}</Text>
+                                    </View>
+                                    {isSelected && <Ionicons name="checkmark-circle" size={20} color="#16877c" />}
+                                </Pressable>
+                            );
+                        })}
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -293,13 +361,80 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         flexDirection: 'row',
         gap: 5,
+        marginLeft: 8,
         paddingHorizontal: 10,
         paddingVertical: 7,
+    },
+    visibilityOptionText: {
+        color: '#20382F',
+        fontSize: 13,
+        fontWeight: '700',
     },
     audienceText: {
         color: '#315B4B',
         fontSize: 11,
         fontWeight: '700',
+    },
+    modalBackdrop: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(18, 35, 29, 0.38)',
+        paddingHorizontal: 24,
+    },
+    visibilityModal: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 18,
+    },
+    modalHeader: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 12,
+    },
+    modalTitle: {
+        color: '#20382F',
+        fontSize: 17,
+        fontWeight: '700',
+    },
+    modalCloseButton: {
+        alignItems: 'center',
+        backgroundColor: '#F2F6F1',
+        borderRadius: 16,
+        height: 32,
+        justifyContent: 'center',
+        width: 32,
+    },
+    visibilityChoice: {
+        alignItems: 'center',
+        borderColor: '#E1E9E2',
+        borderRadius: 12,
+        borderWidth: 1,
+        flexDirection: 'row',
+        gap: 11,
+        marginTop: 8,
+        padding: 11,
+    },
+    visibilityChoiceSelected: {
+        backgroundColor: '#F1F6F2',
+        borderColor: '#8BAA96',
+    },
+    visibilityIcon: {
+        alignItems: 'center',
+        backgroundColor: '#E3ECE5',
+        borderRadius: 18,
+        height: 36,
+        justifyContent: 'center',
+        width: 36,
+    },
+    visibilityDetails: {
+        flex: 1,
+    },
+    visibilityDescription: {
+        color: '#74847A',
+        fontSize: 12,
+        lineHeight: 17,
+        marginTop: 3,
     },
     editor: {
         backgroundColor: '#FFFFFF',

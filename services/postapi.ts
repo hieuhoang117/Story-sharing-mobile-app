@@ -1,6 +1,8 @@
 import type { ImagePickerAsset } from 'expo-image-picker';
 import api from './api';
 
+export type PostVisibility = 'public' | 'followers' | 'private';
+
 //post------------------------
 export const getpostById = (id: string) => {
   return api.get(`/posts/${id}`);
@@ -25,8 +27,8 @@ export const createlike = (post_id: string) => {
 export const deletelike = (likeid: string) => {
   return api.delete(`/posts/deletelike/${likeid}`);
 };
-export const createPost = ( content: string) => {
-  return api.post(`/posts/creatPost`, { content });
+export const createPost = (content: string, visibility: PostVisibility = 'public') => {
+  return api.post(`/posts/creatPost`, { content, visibility });
 };
 
 export const uploadPostImage = (postId: string, image: ImagePickerAsset) => {
