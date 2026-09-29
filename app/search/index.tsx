@@ -1,19 +1,19 @@
+import Post from '@/components/Post/post';
 import { searchUsers } from '@/services/api';
 import { searchPosts } from '@/services/postapi';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import MainMenu from '../../components/Main-menu/Main-menu';
+import UserSearchCard from '../../components/Search/user-search-card';
 
 interface SearchUser {
   id: string;
@@ -81,13 +81,6 @@ export default function SearchScreen() {
     }
   };
 
-  const openPost = (post: SearchPost) => {
-    router.push({
-      pathname: '/main_screen/postdetail',
-      params: { postid: post.id, userid: post.user_id },
-    });
-  };
-
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -134,25 +127,21 @@ export default function SearchScreen() {
             {!loading && !error && users.length === 0 ? (
               <Text style={styles.emptyText}>Không tìm thấy tài khoản phù hợp.</Text>
             ) : (
-              users.map((user) => (
-                <View key={user.id} style={styles.userRow}>
-                  <Image
-                    source={user.avatar_url ? { uri: user.avatar_url } : require('@/assets/images/avartarDefault.png')}
-                    style={styles.avatar}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.usersList}
+              >
+                {users.map((user) => (
+                  <UserSearchCard
+                    key={user.id}
+                    username={user.username}
+                    displayName={user.display_name}
+                    avatarUrl={user.avatar_url}
+                    isVerified={user.is_verified === 1}
                   />
-                  <View style={styles.userInfo}>
-                    <View style={styles.usernameRow}>
-                      <Text style={styles.displayName} numberOfLines={1}>
-                        {user.display_name || user.username}
-                      </Text>
-                      {user.is_verified === 1 && (
-                        <Ionicons name="checkmark-circle" size={15} color="#16877c" />
-                      )}
-                    </View>
-                    <Text style={styles.username} numberOfLines={1}>@{user.username}</Text>
-                  </View>
-                </View>
-              ))
+                ))}
+              </ScrollView>
             )}
 
             <Text style={[styles.sectionTitle, styles.postsHeading]}>Bài viết liên quan</Text>
@@ -160,18 +149,11 @@ export default function SearchScreen() {
               <Text style={styles.emptyText}>Không tìm thấy bài viết phù hợp.</Text>
             ) : (
               posts.map((post) => (
-                <Pressable
+                <Post
                   key={post.id}
-                  style={styles.postRow}
-                  onPress={() => openPost(post)}
-                >
-                  <Text style={styles.postContent} numberOfLines={4}>
-                    {post.content || 'Bài viết không có nội dung'}
-                  </Text>
-                  <Text style={styles.postDate}>
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </Text>
-                </Pressable>
+                  userId={post.user_id}
+                  postId={post.id}
+                />
               ))
             )}
           </>
@@ -244,39 +226,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 8,
   },
-  userRow: {
-    minHeight: 68,
-    flexDirection: 'row',
-    alignItems: 'center',
+  usersList: {
     gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e2eae8',
-  },
-  avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#e7efed',
-  },
-  userInfo: {
-    flex: 1,
-    minWidth: 0,
-  },
-  usernameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  displayName: {
-    flexShrink: 1,
-    color: '#172724',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  username: {
-    color: '#71817e',
-    fontSize: 13,
-    marginTop: 3,
+    paddingVertical: 4,
   },
   emptyText: {
     color: '#82918f',
@@ -285,20 +237,5 @@ const styles = StyleSheet.create({
   },
   postsHeading: {
     marginTop: 26,
-  },
-  postRow: {
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e2eae8',
-  },
-  postContent: {
-    color: '#263532',
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  postDate: {
-    color: '#82918f',
-    fontSize: 12,
-    marginTop: 8,
   },
 });
