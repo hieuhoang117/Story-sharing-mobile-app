@@ -83,6 +83,31 @@ export const getPostById = async (req: Request, res: Response) => {
         }
     };
 
+    export const deletePost = async (req: Request, res: Response) => {
+        try {
+            const { post_id } = req.params;
+            const postId = Array.isArray(post_id) ? post_id[0] : post_id;
+            if (!postId) {
+                return res.status(400).json({ message: 'Post id is required' });
+            }
+
+            const postData = await post.getPostById(postId);
+            if (!postData) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            const userId = (req as any).user.id as string;
+            if (postData.user_id !== userId) {
+                return res.status(403).json({ message: 'Only the post owner can delete this post' });
+            }
+
+            await post.deletePost(postId);
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(500).json({ message: 'Error deleting post', error });
+        }
+    };
+
 export const createLike = async (req: Request, res: Response) => {
     try {
         const { post_id } = req.params;

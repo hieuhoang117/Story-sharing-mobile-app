@@ -73,7 +73,7 @@ export default function Post({ userId, postId }: PostProps) {
             setVisibilityPickerVisible(false);
         } catch (error) {
             console.error('Cập nhật visibility thất bại:', error);
-            Alert.alert('Không thể cập nhật', 'Vui lòng thử lại sau khi API cập nhật visibility sẵn sàng.');
+            Alert.alert('Không thể cập nhật', 'Không thể đổi đối tượng xem bài viết. Vui lòng thử lại.');
         } finally {
             setUpdatingVisibility(false);
         }

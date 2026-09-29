@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
     addPostImage, createComment, createLike,
     createPost,
-    deleteLike, getAllposts,
+    deleteLike, deletePost, getAllposts,
     getCommentsByPost,
     getlikebypost, getpicbypost,
     getPostById, getpostbyuserid, searchPosts, updatePostVisibility
@@ -19,6 +19,7 @@ router.get('/search', searchPosts);
 router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);
 router.patch('/:post_id/visibility', verifyToken, updatePostVisibility);
+router.delete('/:post_id', verifyToken, deletePost);
 router.post('/:post_id/media', verifyToken, upload.single('image'), addPostImage);
 router.get('/:post_id/comments', getCommentsByPost);
 router.post('/:post_id/comments', verifyToken, createComment);  
