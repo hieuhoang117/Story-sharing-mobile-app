@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { PostVisibility } from '../services/postService';
 import * as like from '../services/postService';
 import * as post from '../services/postService';
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from '../services/uploadService';
@@ -88,14 +89,20 @@ export const createComment = async (req: Request, res: Response) => {
 
 export const createPost = async (req: Request, res: Response) => {
     try {
-        const { content } = req.body;
+        const { content, visibility = 'public' } = req.body ?? {};
         const user_id = (req as any).user.id;   // lấy từ token
 
+        if (typeof content !== 'string' || !content.trim()) {
+            return res.status(400).json({ message: 'content is required' });
+        }
+        if (!['public', 'followers', 'private'].includes(visibility)) {
+            return res.status(400).json({ message: 'visibility must be public, followers, or private' });
+        }
 
-        const comment = await post.createPost(user_id, content.trim());
-        return res.status(201).json({ data: comment });
+        const createdPost = await post.createPost(user_id, content.trim(), visibility as PostVisibility);
+        return res.status(201).json({ data: createdPost });
     } catch (error) {
-        return res.status(500).json({ message: 'Error creating comment', error });
+        return res.status(500).json({ message: 'Error creating post', error });
     }
 };
 

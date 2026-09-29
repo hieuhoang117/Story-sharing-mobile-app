@@ -1,6 +1,8 @@
 import Like from '../models/likeModel';
 import Post from '../models/postModel';
 
+export type PostVisibility = 'public' | 'followers' | 'private';
+
 //post----------------------------------------
 export const getPostById = async (id: string) => {
   return await Post.getbyId(id);
@@ -27,10 +29,11 @@ export const createComment = async (post_id: string, user_id: string, content: s
   });
 };
 
-export const createPost = async ( user_id: string, content: string) => {
+export const createPost = async (user_id: string, content: string, visibility: PostVisibility) => {
   return await Post.createPost({
     user_id,
     content,
+    visibility,
   });
 };
 

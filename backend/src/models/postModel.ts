@@ -1,14 +1,14 @@
 import prisma from '../config/db';
 
 const Post = {
-    createPost: async (params: { user_id: string; content: string }) => {
-        const { user_id, content } = params;
+    createPost: async (params: { user_id: string; content: string; visibility: 'public' | 'followers' | 'private' }) => {
+        const { user_id, content, visibility } = params;
 
         const post = await prisma.posts.create({
             data: {
                 user_id,
                 content,
-                visibility: 'public',
+                visibility,
                 status: 'active',
             },
             select: {
@@ -16,6 +16,7 @@ const Post = {
                 user_id: true,
                 parent_post_id: true,
                 content: true,
+                visibility: true,
                 status: true,
                 created_at: true,
             },
