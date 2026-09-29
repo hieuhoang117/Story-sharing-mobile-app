@@ -1,5 +1,6 @@
-import { getCommentsByPost, getpicbypost, getpostById, updatePostVisibility, type PostVisibility } from '@/services/postapi';
+import { deletePost, getCommentsByPost, getpicbypost, getpostById, updatePostVisibility, type PostVisibility } from '@/services/postapi';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +16,7 @@ const VISIBILITY_OPTIONS = [
 interface PostProps {
     userId: string;
     postId: string;
+    onDeleted?: () => void;
 }
 interface PostType {
     id: string,
@@ -46,7 +48,7 @@ interface Comment {
         avatar_url: string | null;
     };
 }
-export default function Post({ userId, postId }: PostProps) {
+export default function Post({ userId, postId, onDeleted }: PostProps) {
     const { idUser } = useAuth();
 
     const [post, setPost] = useState<PostType | null>(null);
@@ -57,7 +59,36 @@ export default function Post({ userId, postId }: PostProps) {
     const [modalVisible, setModalVisible] = useState(false);
     const [visibilityPickerVisible, setVisibilityPickerVisible] = useState(false);
     const [updatingVisibility, setUpdatingVisibility] = useState(false);
+    const [deletingPost, setDeletingPost] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
+
+    const confirmDeletePost = () => {
+        Alert.alert(
+            'Xóa bài viết?',
+            'Bài viết sẽ bị xóa và không thể khôi phục.',
+            [
+                { text: 'Hủy', style: 'cancel' },
+                {
+                    text: 'Xóa bài viết',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setDeletingPost(true);
+                        try {
+                            await deletePost(postId);
+                            setVisibilityPickerVisible(false);
+                            if (onDeleted) onDeleted();
+                            else router.back();
+                        } catch (error) {
+                            console.error('Xóa bài viết thất bại:', error);
+                            Alert.alert('Không thể xóa', 'Vui lòng thử lại sau.');
+                        } finally {
+                            setDeletingPost(false);
+                        }
+                    },
+                },
+            ],
+        );
+    };
 
     const handleVisibilityChange = async (visibility: PostVisibility) => {
         if (!post || updatingVisibility) return;
@@ -188,11 +219,11 @@ export default function Post({ userId, postId }: PostProps) {
                 visible={visibilityPickerVisible}
                 transparent
                 animationType="fade"
-                onRequestClose={() => !updatingVisibility && setVisibilityPickerVisible(false)}
+                onRequestClose={() => !updatingVisibility && !deletingPost && setVisibilityPickerVisible(false)}
             >
                 <Pressable
                     style={styles.modalBackdrop}
-                    onPress={() => !updatingVisibility && setVisibilityPickerVisible(false)}
+                    onPress={() => !updatingVisibility && !deletingPost && setVisibilityPickerVisible(false)}
                 >
                     <Pressable style={styles.visibilityModal} onPress={(event) => event.stopPropagation()}>
                         <View style={styles.modalHeader}>
@@ -200,16 +231,18 @@ export default function Post({ userId, postId }: PostProps) {
                             <Pressable
                                 style={styles.modalCloseButton}
                                 onPress={() => setVisibilityPickerVisible(false)}
-                                disabled={updatingVisibility}
+                                disabled={updatingVisibility || deletingPost}
                                 accessibilityRole="button"
                                 accessibilityLabel="Đóng lựa chọn quyền xem"
                             >
                                 <Ionicons name="close" size={18} color="#52635B" />
                             </Pressable>
                         </View>
-                        {updatingVisibility ? (
+                        {updatingVisibility || deletingPost ? (
                             <ActivityIndicator color="#315B4B" style={styles.visibilityLoader} />
-                        ) : VISIBILITY_OPTIONS.map((option) => {
+                        ) : (
+                            <>
+                                {VISIBILITY_OPTIONS.map((option) => {
                             const isSelected = post?.visibility === option.value;
                             return (
                                 <Pressable
@@ -229,7 +262,19 @@ export default function Post({ userId, postId }: PostProps) {
                                     {isSelected && <Ionicons name="checkmark-circle" size={20} color="#16877c" />}
                                 </Pressable>
                             );
-                        })}
+                                })}
+                                <View style={styles.modalDivider} />
+                                <Pressable
+                                    style={styles.deleteOption}
+                                    onPress={confirmDeletePost}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Xóa bài viết"
+                                >
+                                    <Ionicons name="trash-outline" size={19} color="#B42318" />
+                                    <Text style={styles.deleteOptionText}>Xóa bài viết</Text>
+                                </Pressable>
+                            </>
+                        )}
                     </Pressable>
                 </Pressable>
             </Modal>
@@ -339,6 +384,23 @@ const styles = StyleSheet.create({
     },
     visibilityLoader: {
         marginVertical: 24,
+    },
+    modalDivider: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: '#E1E9E2',
+        marginTop: 16,
+    },
+    deleteOption: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 11,
+        paddingHorizontal: 8,
+        paddingVertical: 14,
+    },
+    deleteOptionText: {
+        color: '#B42318',
+        fontSize: 14,
+        fontWeight: '700',
     },
     text: {
         alignSelf:'flex-start',

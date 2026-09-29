@@ -153,6 +153,7 @@ export default function SearchScreen() {
                   key={post.id}
                   userId={post.user_id}
                   postId={post.id}
+                  onDeleted={() => setPosts((currentPosts) => currentPosts.filter((item) => item.id !== post.id))}
                 />
               ))
             )}

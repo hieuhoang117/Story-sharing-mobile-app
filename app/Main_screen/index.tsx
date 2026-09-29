@@ -58,7 +58,11 @@ export default function MainScreen() {
         }
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Post userId={item.user_id} postId={item.id} />
+          <Post
+            userId={item.user_id}
+            postId={item.id}
+            onDeleted={() => setPosts((currentPosts) => currentPosts.filter((post) => post.id !== item.id))}
+          />
         )}
         refreshing={loading}
         onRefresh={fetchAllPosts}

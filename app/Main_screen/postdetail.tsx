@@ -1,6 +1,6 @@
 import Comment from '@/components/Post/comment/comment';
 import Post from '@/components/Post/post';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
 export default function PostDetailScreen() {
@@ -11,7 +11,7 @@ export default function PostDetailScreen() {
   return (
     <View>
       <Stack.Screen options={{ title: 'ilife',  headerBackButtonDisplayMode: 'minimal'}} />
-      <Post postId={resolvedPostId} userId={resolvedUserId} />
+      <Post postId={resolvedPostId} userId={resolvedUserId} onDeleted={() => router.back()} />
       <Comment postId={resolvedPostId} />
     </View>
   );
