@@ -10,7 +10,7 @@ const MainMenu = () => {
 
   const menuItems = [
     { key: 'Home', icon: 'house.fill', screen: '/main_screen' },
-    { key: 'Finding', icon: 'magnifyingglass', screen: '/' },
+    { key: 'Finding', icon: 'magnifyingglass', screen: '/search' },
     { key: 'Plus', icon: 'plus', screen: '/create-post' },
     { key: 'Love', icon: 'heart.fill', screen: '/' },
     { key: 'Profile', icon: 'person.fill', screen: '/profile' },

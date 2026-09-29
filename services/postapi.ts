@@ -8,6 +8,9 @@ export const getpostById = (id: string) => {
 export const getAllPosts = () => {
   return api.get(`/posts/allPost`);
 };
+export const searchPosts = (keyword: string) => {
+  return api.get('/posts/search', { params: { keyword } });
+};
 export const getpicbypost = (post_id: string) => {
   return api.get(`/posts/getpostpic/${post_id}`);
 };

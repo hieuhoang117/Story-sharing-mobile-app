@@ -19,6 +19,9 @@ export const login = (email: string, password: string) => {
 export const getUserById = (id: string) => {
   return api.get(`/users/${id}`);
 };
+export const searchUsers = (username: string) => {
+  return api.get('/users/search', { params: { username } });
+};
 export const getpostbyuserid = (user_id: string) => {
   return api.get(`/posts/postbyuser/${user_id}`);
 };

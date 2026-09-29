@@ -20,6 +20,7 @@ function RootNavigation() {
             animation: 'slide_from_bottom',
             title: 'Tạo bài viết',
           }}></Stack.Screen>
+          <Stack.Screen name='search' options={{ headerBackButtonDisplayMode: 'minimal' }} ></Stack.Screen>
       </Stack.Protected>
     </Stack>
   );
