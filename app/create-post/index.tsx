@@ -21,6 +21,7 @@ export default function CreatePost() {
     const { avatar, displayname, username } = useAuth();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [pic,setpic]=useState('');
 
     const handleSubmit = async () => {
         const trimmedContent = content.trim();

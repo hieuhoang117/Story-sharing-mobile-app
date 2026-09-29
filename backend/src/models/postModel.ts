@@ -23,6 +23,28 @@ const Post = {
 
         return post;
     },
+    getPostOwner: async (post_id: string) => {
+        return await prisma.posts.findUnique({
+            where: { id: post_id },
+            select: { user_id: true },
+        });
+    },
+    createPostImage: async (post_id: string, url: string) => {
+        return await prisma.media.create({
+            data: {
+                post_id,
+                type: 'image',
+                url,
+            },
+            select: {
+                id: true,
+                post_id: true,
+                type: true,
+                url: true,
+                created_at: true,
+            },
+        });
+    },
     getbyId: async (id: string) => {
         return await prisma.posts.findFirst({
             where: { id, parent_post_id: null },

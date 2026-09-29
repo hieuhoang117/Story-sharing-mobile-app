@@ -23,4 +23,23 @@ export const getpostbyuserid = (user_id: string) => {
   return api.get(`/posts/postbyuser/${user_id}`);
 };
 
+//uploadpic---------------
+type ImageUploadAsset = {
+  uri: string;
+  fileName?: string | null;
+  mimeType?: string | null;
+};
+
+export const uploadpic = (image: ImageUploadAsset) => {
+  const formData = new FormData();
+  formData.append('avatar', {
+    uri: image.uri,
+    name: image.fileName ?? 'avatar.jpg',
+    type: image.mimeType ?? 'image/jpeg',
+  } as unknown as Blob);
+
+  return api.post('/uploads/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
 export default api;

@@ -1,6 +1,41 @@
 import { Request, Response } from 'express';
 import * as like from '../services/postService';
 import * as post from '../services/postService';
+import { deleteImageFromCloudinary, uploadImageToCloudinary } from '../services/uploadService';
+
+export const addPostImage = async (req: Request, res: Response) => {
+    const { post_id } = req.params;
+    const postId = Array.isArray(post_id) ? post_id[0] : post_id;
+    const userId = (req as any).user.id;
+
+    if (!req.file) {
+        return res.status(400).json({ message: 'Image file is required in the image field' });
+    }
+    if (!req.file.mimetype.startsWith('image/')) {
+        return res.status(400).json({ message: 'Only image files are allowed' });
+    }
+
+    try {
+        const postOwner = await post.getPostOwner(postId);
+        if (!postOwner) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        if (postOwner.user_id !== userId) {
+            return res.status(403).json({ message: 'Only the post owner can add images' });
+        }
+
+        const uploadedImage = await uploadImageToCloudinary(req.file.buffer, 'posts');
+        try {
+            const media = await post.createPostImage(postId, uploadedImage.secure_url);
+            return res.status(201).json({ message: 'Post image added successfully', data: media });
+        } catch (error) {
+            await deleteImageFromCloudinary(uploadedImage.public_id).catch(() => undefined);
+            throw error;
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to add post image', error });
+    }
+};
 
 export const getPostById = async (req: Request, res: Response) => {
     try {

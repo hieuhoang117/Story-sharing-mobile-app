@@ -34,4 +34,7 @@ export const getCommentsByPost = (post_id: string) => {
   return api.get(`/posts/${post_id}/comments`);
 };
 
+
+
+
 export default api;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-    createComment, createLike,
+    addPostImage, createComment, createLike,
     createPost,
     deleteLike, getAllposts,
     getCommentsByPost,
@@ -8,6 +8,7 @@ import {
     getPostById, getpostbyuserid
 } from '../controllers/postController';
 import { verifyToken } from '../middlewares/authMiddleware';
+import { upload } from '../middlewares/uploadMiddleware';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.get('/postbyuser/:user_id', getpostbyuserid);
 router.get('/allPost', getAllposts);
 router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);
+router.post('/:post_id/media', verifyToken, upload.single('image'), addPostImage);
 router.get('/:post_id/comments', getCommentsByPost);
 router.post('/:post_id/comments', verifyToken, createComment);  
 router.get('/:id', getPostById);

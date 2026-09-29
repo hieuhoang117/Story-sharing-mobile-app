@@ -31,6 +31,14 @@ export const createPost = async ( user_id: string, content: string) => {
   });
 };
 
+export const getPostOwner = async (post_id: string) => {
+  return await Post.getPostOwner(post_id);
+};
+
+export const createPostImage = async (post_id: string, url: string) => {
+  return await Post.createPostImage(post_id, url);
+};
+
 export const getCommentsByPost = async (post_id: string) => {
   return await Post.getCommentsByPostId(post_id);   
 };
