@@ -13,6 +13,17 @@ const VISIBILITY_OPTIONS = [
     { value: 'private', label: 'Chỉ mình tôi', description: 'Chỉ bạn có thể xem bài viết.', icon: 'lock-closed-outline' },
 ] as const;
 
+const formatPostDate = (createdAt: string) => {
+    const date = new Date(createdAt);
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+};
+
 interface PostProps {
     userId: string;
     postId: string;
@@ -182,7 +193,10 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
             <View style={styles.heading}>
                 <Image style={styles.avatar} source={{ uri: user?.avatar_url }} />
                 <View style={styles.userInfo}>
-                    <Text style={styles.displayName}>{user?.display_name}</Text>
+                    <View style={styles.nameRow}>
+                        <Text style={styles.displayName} numberOfLines={1}>{user?.display_name}</Text>
+                        {post?.created_at && <Text style={styles.createdAt}>{formatPostDate(post.created_at)}</Text>}
+                    </View>
                     <Text style={styles.username}>{user?.username}</Text>
                 </View>
                 {idUser && post?.visibility && (
@@ -352,6 +366,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
         lineHeight: 20,
+        flexShrink: 1,
+    },
+    nameRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 8,
+    },
+    createdAt: {
+        color: '#8A8A8A',
+        fontSize: 12,
+        flexShrink: 0,
     },
     username: {
         color: '#777777',
