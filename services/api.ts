@@ -25,6 +25,12 @@ export const getFollowersByUserId = (id: string) => {
 export const getFollowingByUserId = (id: string) => {
   return api.get(`/users/${id}/following`);
 };
+export const followUser = (id: string) => {
+  return api.post(`/users/${id}/follow`);
+};
+export const unfollowUser = (id: string) => {
+  return api.delete(`/users/${id}/follow`);
+};
 export const searchUsers = (username: string) => {
   return api.get('/users/search', { params: { username } });
 };

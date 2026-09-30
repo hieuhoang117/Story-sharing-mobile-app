@@ -6,6 +6,7 @@ const Follow = {
   findMany: prisma.follows.findMany,
   update: prisma.follows.update,
   delete: prisma.follows.delete,
+  deleteMany: prisma.follows.deleteMany,
 };
 
 export default Follow;

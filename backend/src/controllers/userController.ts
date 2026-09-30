@@ -79,6 +79,57 @@ export const getFollowingByUserId = async (req: Request, res: Response) => {
   }
 };
 
+export const followUser = async (req: Request, res: Response) => {
+  try {
+    const followingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const followerId = (req as any).user.id as string;
+
+    if (followerId === followingId) {
+      return res.status(400).json({ message: 'You cannot follow yourself' });
+    }
+
+    const result = await userService.followUser(followerId, followingId);
+    if (!result) {
+      return res.status(404).json({ message: 'User not found or unavailable' });
+    }
+    if (result.alreadyExists) {
+      return res.status(409).json({ message: 'Follow relationship already exists', data: result.follow });
+    }
+
+    const message = result.follow.status === 'pending'
+      ? 'Follow request sent'
+      : 'Followed successfully';
+    return res.status(201).json({ message, data: result.follow });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error following user', error });
+  }
+};
+
+export const unfollowUser = async (req: Request, res: Response) => {
+  try {
+    const followingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const followerId = (req as any).user.id as string;
+
+    if (followerId === followingId) {
+      return res.status(400).json({ message: 'You cannot unfollow yourself' });
+    }
+
+    const user = await userService.getUserById(followingId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const result = await userService.unfollowUser(followerId, followingId);
+    if (result.count === 0) {
+      return res.status(404).json({ message: 'Follow relationship not found' });
+    }
+
+    return res.status(200).json({ message: 'Unfollowed successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error unfollowing user', error });
+  }
+};
+
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

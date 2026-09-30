@@ -112,3 +112,50 @@ export const getFollowingByUserId = async (userId: string) => {
 
   return follows.map((follow) => follow.users_follows_following_idTousers);
 };
+
+export const followUser = async (followerId: string, followingId: string) => {
+  const targetUser = await User.findUnique({
+    where: { id: followingId },
+    select: { id: true, is_private: true, status: true },
+  });
+
+  if (!targetUser || targetUser.status !== 'active') {
+    return null;
+  }
+
+  const existingFollow = await Follow.findUnique({
+    where: {
+      follower_id_following_id: {
+        follower_id: followerId,
+        following_id: followingId,
+      },
+    },
+  });
+
+  if (existingFollow) {
+    return { alreadyExists: true, follow: existingFollow };
+  }
+
+  const follow = await Follow.create({
+    data: {
+      follower_id: followerId,
+      following_id: followingId,
+      status: targetUser.is_private === 1 ? 'pending' : 'accepted',
+    },
+    select: {
+      id: true,
+      follower_id: true,
+      following_id: true,
+      status: true,
+      created_at: true,
+    },
+  });
+
+  return { alreadyExists: false, follow };
+};
+
+export const unfollowUser = async (followerId: string, followingId: string) => {
+  return Follow.deleteMany({
+    where: { follower_id: followerId, following_id: followingId },
+  });
+};
