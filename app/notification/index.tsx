@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import MainMenu from '../../components/Main-menu/Main-menu';
 import { useAuth } from '../../context/AuthContext';
 
 type NotificationType = 'like' | 'reply' | 'follow' | 'mention' | 'repost';
@@ -126,17 +127,13 @@ export default function NotificationScreen() {
 		});
 	};
 
-	if (loading) {
-		return (
-			<View style={styles.centerState}>
-				<ActivityIndicator color="#315B4B" />
-			</View>
-		);
-	}
-
 	return (
 		<View style={styles.screen}>
-			{error && notifications.length === 0 ? (
+			{loading ? (
+				<View style={styles.centerState}>
+					<ActivityIndicator color="#315B4B" />
+				</View>
+			) : error && notifications.length === 0 ? (
 				<View style={styles.centerState}>
 					<Text style={styles.stateText}>Không thể tải thông báo.</Text>
 					<Pressable style={styles.retryButton} onPress={() => void refreshNotifications()}>
@@ -203,6 +200,7 @@ export default function NotificationScreen() {
 					) : null}
 				/>
 			)}
+			<MainMenu />
 		</View>
 	);
 }
@@ -214,12 +212,13 @@ const styles = StyleSheet.create({
 	},
 	listContent: {
 		paddingHorizontal: 14,
-		paddingBottom: 20,
+		paddingBottom: 100,
 		paddingTop: 8,
 	},
 	emptyList: {
 		flexGrow: 1,
 		justifyContent: 'center',
+		paddingBottom: 100,
 		paddingHorizontal: 20,
 	},
 	notificationRow: {
