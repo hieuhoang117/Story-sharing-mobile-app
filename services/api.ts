@@ -19,6 +19,9 @@ export const login = (email: string, password: string) => {
 export const getUserById = (id: string) => {
   return api.get(`/users/${id}`);
 };
+export const getNotificationsByUserId = (userId: string, limit = 50) => {
+  return api.get(`/notifications/${userId}`, { params: { limit } });
+};
 export const getFollowersByUserId = (id: string) => {
   return api.get(`/users/${id}/followers`);
 };
