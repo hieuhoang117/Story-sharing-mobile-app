@@ -17,6 +17,12 @@ export const deletePost = async (id: string) => {
 export const getPostByUserId = async (user_id: string) => {
   return await Post.getpostbyuserid(user_id);
 };
+export const getRepliesByUserId = async (user_id: string) => {
+  return await Post.getRepliesByUserId(user_id);
+};
+export const getLikedPostsByUserId = async (user_id: string) => {
+  return await Post.getLikedPostsByUserId(user_id);
+};
 export const getallpost = async () => {
   return await Post.getallpost();
 };

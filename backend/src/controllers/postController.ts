@@ -193,6 +193,27 @@ export const getpostbyuserid = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error fetching post', error });
     }
 };
+
+export const getMyReplies = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id as string;
+        const replies = await post.getRepliesByUserId(userId);
+        return res.status(200).json({ data: replies });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching replies', error });
+    }
+};
+
+export const getMyLikedPosts = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id as string;
+        const likedPosts = await post.getLikedPostsByUserId(userId);
+        return res.status(200).json({ data: likedPosts });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching liked posts', error });
+    }
+};
+
 export const getAllposts = async (req: Request, res: Response) => {
     try {
         const postdata = await post.getallpost();

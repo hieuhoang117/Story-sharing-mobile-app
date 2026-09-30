@@ -1,9 +1,41 @@
 import { useAuth } from '@/context/AuthContext';
+import { getFollowersByUserId, getFollowingByUserId } from '@/services/api';
+import { useEffect, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import MainMenu from '../../components/Main-menu/Main-menu';
 
 export default function profile() {
-    const { username, displayname, avatar } = useAuth();
+    const { idUser, username, displayname, avatar } = useAuth();
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+
+    useEffect(() => {
+        if (!idUser) return;
+
+        let isActive = true;
+        const fetchFollowCounts = async () => {
+            try {
+                const [followersResponse, followingResponse] = await Promise.all([
+                    getFollowersByUserId(idUser),
+                    getFollowingByUserId(idUser),
+                ]);
+
+                if (!isActive) return;
+
+                const followers = followersResponse.data.data;
+                const following = followingResponse.data.data;
+                setFollowersCount(Array.isArray(followers) ? followers.length : 0);
+                setFollowingCount(Array.isArray(following) ? following.length : 0);
+            } catch (error) {
+                console.error('Lấy danh sách follower/following thất bại:', error);
+            }
+        };
+
+        void fetchFollowCounts();
+        return () => {
+            isActive = false;
+        };
+    }, [idUser]);
 
     // TODO: gọi API lấy danh sách bài đăng của user
     const posts: any[] = [];
@@ -24,11 +56,11 @@ export default function profile() {
 
                 <View style={styles.followRow}>
                     <View style={styles.followItem}>
-                        <Text style={styles.followNumber}>0</Text>
+                        <Text style={styles.followNumber}>{followingCount}</Text>
                         <Text style={styles.followLabel}>Following</Text>
                     </View>
                     <View style={styles.followItem}>
-                        <Text style={styles.followNumber}>0</Text>
+                        <Text style={styles.followNumber}>{followersCount}</Text>
                         <Text style={styles.followLabel}>Followers</Text>
                     </View>
                 </View>

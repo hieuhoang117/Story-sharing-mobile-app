@@ -4,7 +4,9 @@ import {
     createPost,
     deleteLike, deletePost, getAllposts,
     getCommentsByPost,
-    getlikebypost, getpicbypost,
+    getlikebypost,
+    getMyLikedPosts, getMyReplies,
+    getpicbypost,
     getPostById, getpostbyuserid, searchPosts, updatePostVisibility
 } from '../controllers/postController';
 import { verifyToken } from '../middlewares/authMiddleware';
@@ -14,6 +16,8 @@ const router = Router();
 
 //post-----------------------
 router.get('/postbyuser/:user_id', getpostbyuserid);
+router.get('/my/replies', verifyToken, getMyReplies);
+router.get('/my/liked-posts', verifyToken, getMyLikedPosts);
 router.get('/allPost', getAllposts);
 router.get('/search', searchPosts);
 router.post('/creatPost', verifyToken, createPost); 

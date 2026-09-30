@@ -112,6 +112,44 @@ const Post = {
             },
         });
     },
+    getRepliesByUserId: async (user_id: string) => {
+        return await prisma.posts.findMany({
+            where: {
+                user_id,
+                parent_post_id: { not: null },
+                status: 'active',
+            },
+            select: {
+                id: true,
+                user_id: true,
+                parent_post_id: true,
+                content: true,
+                created_at: true,
+            },
+            orderBy: { created_at: 'desc' },
+        });
+    },
+    getLikedPostsByUserId: async (user_id: string) => {
+        const likes = await prisma.likes.findMany({
+            where: {
+                user_id,
+                posts: { is: { parent_post_id: null, status: 'active' } },
+            },
+            select: {
+                posts: {
+                    select: {
+                        id: true,
+                        user_id: true,
+                        content: true,
+                        created_at: true,
+                    },
+                },
+            },
+            orderBy: { created_at: 'desc' },
+        });
+
+        return likes.map((like) => like.posts);
+    },
     getpictrbypost: async (post_id: string) => {
         return await prisma.media.findMany({
             where: { post_id },
