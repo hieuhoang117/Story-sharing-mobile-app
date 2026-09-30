@@ -48,7 +48,7 @@ const Post = {
     },
     getbyId: async (id: string) => {
         return await prisma.posts.findFirst({
-            where: { id, parent_post_id: null },
+            where: { id },
             select: {
                 id: true,
                 user_id: true,

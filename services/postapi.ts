@@ -10,6 +10,12 @@ export const getpostById = (id: string) => {
 export const getAllPosts = () => {
   return api.get(`/posts/allPost`);
 };
+export const getMyReplies = () => {
+  return api.get('/posts/my/replies');
+};
+export const getMyLikedPosts = () => {
+  return api.get('/posts/my/liked-posts');
+};
 export const searchPosts = (keyword: string) => {
   return api.get('/posts/search', { params: { keyword } });
 };
