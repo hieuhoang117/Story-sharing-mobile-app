@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import Follow from '../models/followModel';
 import User from '../models/userModel';
 
 export const createUser = async (name: string, email: string, password: string) => {
@@ -69,3 +70,45 @@ export const loginUser = async (email: string, password: string) => {
 export const getUserById = async (id: string) => {
   return await User.getById(id);
 }
+
+export const getFollowersByUserId = async (userId: string) => {
+  const follows = await Follow.findMany({
+    where: { following_id: userId, status: 'accepted' },
+    select: {
+      users_follows_follower_idTousers: {
+        select: {
+          id: true,
+          username: true,
+          display_name: true,
+          avatar_url: true,
+          bio: true,
+          is_verified: true,
+        },
+      },
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  return follows.map((follow) => follow.users_follows_follower_idTousers);
+};
+
+export const getFollowingByUserId = async (userId: string) => {
+  const follows = await Follow.findMany({
+    where: { follower_id: userId, status: 'accepted' },
+    select: {
+      users_follows_following_idTousers: {
+        select: {
+          id: true,
+          username: true,
+          display_name: true,
+          avatar_url: true,
+          bio: true,
+          is_verified: true,
+        },
+      },
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  return follows.map((follow) => follow.users_follows_following_idTousers);
+};

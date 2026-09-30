@@ -49,6 +49,36 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+export const getFollowersByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const followers = await userService.getFollowersByUserId(userId);
+    res.status(200).json({ data: followers });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching followers', error });
+  }
+};
+
+export const getFollowingByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const following = await userService.getFollowingByUserId(userId);
+    res.status(200).json({ data: following });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching following', error });
+  }
+};
+
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
