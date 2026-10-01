@@ -59,12 +59,8 @@ export const uploadpic = (image: ImageUploadAsset) => {
   });
 };
 
-export const updateMyAvatar = (image: ImageUploadAsset) => {
-  const formData = createAvatarFormData(image);
-
-  return api.put('/users/me/avatar', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+export const updateMyAvatar = (userId: string, avatarUrl: string) => {
+  return api.put(`/users/${userId}/avatar`, { avatar_url: avatarUrl });
 };
 
 const createAvatarFormData = (image: ImageUploadAsset) => {

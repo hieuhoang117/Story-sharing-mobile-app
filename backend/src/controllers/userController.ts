@@ -137,6 +137,43 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+export const updateUserAvatar = async (req: Request, res: Response) => {
+  const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const requesterId = (req as any).user?.id as string | undefined;
+  const avatarUrl = typeof req.body?.avatar_url === 'string' ? req.body.avatar_url.trim() : '';
+
+  if (!requesterId) {
+    return res.status(401).json({ message: 'Authentication is required' });
+  }
+  if (requesterId !== userId) {
+    return res.status(403).json({ message: 'You can only update your own avatar' });
+  }
+  if (!avatarUrl) {
+    return res.status(400).json({ message: 'avatar_url is required' });
+  }
+
+  try {
+    const parsedUrl = new URL(avatarUrl);
+    if (parsedUrl.protocol !== 'https:') {
+      return res.status(400).json({ message: 'avatar_url must use HTTPS' });
+    }
+
+    const user = await userService.updateAvatarUrl(userId, avatarUrl);
+    return res.status(200).json({
+      message: 'Avatar updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      return res.status(400).json({ message: 'avatar_url must be a valid URL' });
+    }
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(500).json({ message: 'Failed to update avatar', error });
+  }
+};
+
 export const getFollowersByUserId = async (req: Request, res: Response) => {
   try {
     const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

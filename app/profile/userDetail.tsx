@@ -1,9 +1,12 @@
 import { useAuth } from '@/context/AuthContext';
-import { getUserById } from '@/services/api';
+import { getUserById, updateMyAvatar, uploadpic } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
 
 interface UserProfile {
 	id: string;
@@ -18,13 +21,14 @@ interface UserProfile {
 }
 
 export default function UserDetailScreen() {
-	const { idUser } = useAuth();
+	const { idUser, setavatar } = useAuth();
 	const { userId: routeUserId } = useLocalSearchParams<{ userId?: string }>();
 	const userId = (Array.isArray(routeUserId) ? routeUserId[0] : routeUserId) || idUser;
 	const [user, setUser] = useState<UserProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
+	const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -52,6 +56,53 @@ export default function UserDetailScreen() {
 			isActive = false;
 		};
 	}, [retryCount, userId]);
+
+	const handleResetAvatar = async () => {
+		if (!user || user.id !== idUser || isUpdatingAvatar) return;
+
+		setIsUpdatingAvatar(true);
+		try {
+			await updateMyAvatar(user.id, DEFAULT_AVATAR_URL);
+			setUser((current) => current ? { ...current, avatar_url: DEFAULT_AVATAR_URL } : current);
+			setavatar(DEFAULT_AVATAR_URL);
+			Alert.alert('Đã xóa ảnh đại diện', 'Avatar đã được đổi về ảnh mặc định.');
+		} catch (requestError) {
+			const message = (requestError as { response?: { data?: { message?: string } } }).response?.data?.message;
+			Alert.alert('Không thể xóa avatar', message ?? 'Vui lòng thử lại sau.');
+		} finally {
+			setIsUpdatingAvatar(false);
+		}
+	};
+
+	const handleChangeAvatar = async () => {
+		if (!user || user.id !== idUser || isUpdatingAvatar) return;
+
+		setIsUpdatingAvatar(true);
+		try {
+			const selection = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ['images'],
+				allowsEditing: true,
+				aspect: [1, 1],
+				quality: 0.8,
+			});
+			if (selection.canceled) return;
+
+			const asset = selection.assets[0];
+			const uploadResponse = await uploadpic(asset);
+			const avatarUrl = uploadResponse.data.data.url as string | undefined;
+			if (!avatarUrl) throw new Error('Không nhận được URL ảnh từ máy chủ.');
+
+			await updateMyAvatar(user.id, avatarUrl);
+			setUser((current) => current ? { ...current, avatar_url: avatarUrl } : current);
+			setavatar(avatarUrl);
+			Alert.alert('Đã đổi ảnh đại diện', 'Avatar của bạn đã được cập nhật.');
+		} catch (requestError) {
+			const message = (requestError as { response?: { data?: { message?: string } } }).response?.data?.message;
+			Alert.alert('Không thể đổi avatar', message ?? 'Vui lòng thử lại sau.');
+		} finally {
+			setIsUpdatingAvatar(false);
+		}
+	};
 
 	const createdDate = user ? new Date(user.created_at) : null;
 	const joinedDate = createdDate && !Number.isNaN(createdDate.getTime())
@@ -90,11 +141,37 @@ export default function UserDetailScreen() {
 				<ScrollView contentContainerStyle={styles.content}>
 					<View style={styles.identity}>
 						<Image
-							source={user.avatar_url
-								? { uri: user.avatar_url }
-								: require('@/assets/images/avartarDefault.png')}
+							source={{ uri: user.avatar_url || DEFAULT_AVATAR_URL }}
 							style={styles.avatar}
 						/>
+						{user.id === idUser && (
+							<View style={styles.avatarActions}>
+								<Pressable
+									style={[styles.avatarActionButton, styles.removeAvatarButton, isUpdatingAvatar && styles.disabledButton]}
+									onPress={() => void handleResetAvatar()}
+									disabled={isUpdatingAvatar}
+									accessibilityRole="button"
+									accessibilityLabel="Xóa avatar, dùng ảnh mặc định"
+								>
+									{isUpdatingAvatar ? <ActivityIndicator size="small" color="#A63C34" /> : <>
+										<Ionicons name="trash-outline" size={17} color="#A63C34" />
+										<Text style={styles.removeAvatarText}>Xóa avatar</Text>
+									</>}
+								</Pressable>
+								<Pressable
+									style={[styles.avatarActionButton, styles.changeAvatarButton, isUpdatingAvatar && styles.disabledButton]}
+									onPress={() => void handleChangeAvatar()}
+									disabled={isUpdatingAvatar}
+									accessibilityRole="button"
+									accessibilityLabel="Chọn ảnh đại diện mới"
+								>
+									{isUpdatingAvatar ? <ActivityIndicator size="small" color="#FFFFFF" /> : <>
+										<Ionicons name="image-outline" size={17} color="#FFFFFF" />
+										<Text style={styles.changeAvatarText}>Đổi avatar</Text>
+									</>}
+								</Pressable>
+							</View>
+						)}
 						<View style={styles.nameRow}>
 							<Text style={styles.displayName}>{user.display_name || user.username}</Text>
 							{Boolean(user.is_verified) && (
@@ -162,6 +239,43 @@ const styles = StyleSheet.create({
 		borderRadius: 52,
 		marginBottom: 16,
 		backgroundColor: '#DDEEF3',
+	},
+	avatarActions: {
+		alignSelf: 'stretch',
+		flexDirection: 'row',
+		gap: 10,
+		marginBottom: 20,
+	},
+	avatarActionButton: {
+		alignItems: 'center',
+		borderRadius: 8,
+		flex: 1,
+		flexDirection: 'row',
+		gap: 7,
+		justifyContent: 'center',
+		minHeight: 42,
+		paddingHorizontal: 10,
+	},
+	removeAvatarButton: {
+		backgroundColor: '#FBEDEC',
+		borderColor: '#E8C5C1',
+		borderWidth: 1,
+	},
+	changeAvatarButton: {
+		backgroundColor: '#0A7EA4',
+	},
+	removeAvatarText: {
+		color: '#A63C34',
+		fontSize: 13,
+		fontWeight: '700',
+	},
+	changeAvatarText: {
+		color: '#FFFFFF',
+		fontSize: 13,
+		fontWeight: '700',
+	},
+	disabledButton: {
+		opacity: 0.7,
 	},
 	nameRow: {
 		maxWidth: '100%',

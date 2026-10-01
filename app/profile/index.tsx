@@ -182,7 +182,7 @@ export default function profile() {
         <View style={styles.root}>
             {/* PHẦN THÔNG TIN CÁ NHÂN */}
             <View style={styles.profileHeader}>
-                {profileUserId && (
+                {profileUserId && isOwnProfile && (
                     <Pressable
                         style={styles.userDetailButton}
                         onPress={() => router.push({

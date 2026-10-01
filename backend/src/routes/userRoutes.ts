@@ -1,8 +1,6 @@
 import { Router } from 'express';
-import { updateMyAvatar } from '../controllers/uploadController';
-import { checkUserExists, followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, verifyOtp } from '../controllers/userController';
+import { checkUserExists, followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, updateUserAvatar, verifyOtp } from '../controllers/userController';
 import { verifyToken } from '../middlewares/authMiddleware';
-import { upload } from '../middlewares/uploadMiddleware';
 
 const router = Router();
 
@@ -11,7 +9,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
-router.put('/me/avatar', verifyToken, upload.single('avatar'), updateMyAvatar);
 
 router.get('/', verifyToken, getUsers);
 router.get('/search', verifyToken, searchUsers);
@@ -19,6 +16,7 @@ router.get('/:id/followers', verifyToken, getFollowersByUserId);
 router.get('/:id/following', verifyToken, getFollowingByUserId);
 router.post('/:id/follow', verifyToken, followUser);
 router.delete('/:id/follow', verifyToken, unfollowUser);
+router.put('/:id/avatar', verifyToken, updateUserAvatar);
 router.get('/:id', verifyToken, getUserById);
 
 export default router;
