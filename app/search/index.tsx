@@ -2,6 +2,7 @@ import Post from '@/components/Post/post';
 import { searchUsers } from '@/services/api';
 import { searchPosts } from '@/services/postapi';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -139,6 +140,7 @@ export default function SearchScreen() {
                     displayName={user.display_name}
                     avatarUrl={user.avatar_url}
                     isVerified={user.is_verified === 1}
+                    onPress={() => router.push({ pathname: '/profile', params: { userId: user.id } })}
                   />
                 ))}
               </ScrollView>

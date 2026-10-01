@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface UserSearchCardProps {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
   isVerified: boolean;
+  onPress: () => void;
 }
 
 export default function UserSearchCard({
@@ -13,9 +14,15 @@ export default function UserSearchCard({
   displayName,
   avatarUrl,
   isVerified,
+  onPress,
 }: UserSearchCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={styles.card}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Mở trang cá nhân của ${displayName || username}`}
+    >
       <Image
         source={avatarUrl ? { uri: avatarUrl } : require('@/assets/images/avartarDefault.png')}
         style={styles.avatar}
@@ -29,7 +36,7 @@ export default function UserSearchCard({
         )}
       </View>
       <Text style={styles.username} numberOfLines={1}>@{username}</Text>
-    </View>
+    </Pressable>
   );
 }
 
