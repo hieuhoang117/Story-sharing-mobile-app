@@ -347,12 +347,25 @@ export default function profile() {
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item }) => (
                                     <View style={styles.followUserRow}>
-                                        <Image
-                                            source={item.avatar_url
-                                                ? { uri: item.avatar_url }
-                                                : require('@/assets/images/avartarDefault.png')}
-                                            style={styles.followUserAvatar}
-                                        />
+                                        <Pressable
+                                            onPress={() => {
+                                                setFollowListType(null);
+                                                router.push({
+                                                    pathname: '/profile',
+                                                    params: { userId: item.id },
+                                                });
+                                            }}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Mở trang cá nhân của ${item.display_name || item.username}`}
+                                            hitSlop={6}
+                                        >
+                                            <Image
+                                                source={item.avatar_url
+                                                    ? { uri: item.avatar_url }
+                                                    : require('@/assets/images/avartarDefault.png')}
+                                                style={styles.followUserAvatar}
+                                            />
+                                        </Pressable>
                                         <View style={styles.followUserInfo}>
                                             <Text style={styles.followUserName} numberOfLines={1}>
                                                 {item.display_name || item.username}
@@ -361,6 +374,7 @@ export default function profile() {
                                                 @{item.username}
                                             </Text>
                                         </View>
+                                        <FollowButton userId={item.id} guestId={idUser} />
                                     </View>
                                 )}
                                 ListEmptyComponent={(
