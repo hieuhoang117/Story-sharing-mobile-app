@@ -4,10 +4,26 @@ import * as userService from '../services/userService';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
-    const user = await userService.createUser(name, email, password);
+    const { name, email, password, display_name, avatar_url } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: 'name, email and password are required',
+      });
+    }
+
+    const user = await userService.createUser(
+      name.trim(),
+      email.trim().toLowerCase(),
+      password,
+      typeof display_name === 'string' ? display_name.trim() : undefined,
+      typeof avatar_url === 'string' && avatar_url.trim() ? avatar_url.trim() : undefined,
+    );
     res.status(201).json({ message: 'User created', data: user });
   } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
+      return res.status(409).json({ message: 'Username or email already exists' });
+    }
     res.status(500).json({ message: 'Error creating user', error });
   }
 };

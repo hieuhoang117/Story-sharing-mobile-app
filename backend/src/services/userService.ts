@@ -2,14 +2,35 @@ import bcrypt from 'bcrypt';
 import Follow from '../models/followModel';
 import User from '../models/userModel';
 
-export const createUser = async (name: string, email: string, password: string) => {
+const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
+
+export const createUser = async (
+  name: string,
+  email: string,
+  password: string,
+  displayName?: string,
+  avatarUrl: string = DEFAULT_AVATAR_URL,
+) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return await User.create({
     data: {
       username: name,
+      display_name: displayName || name,
       email,
       password_hash: hashedPassword,
+      avatar_url: avatarUrl,
+    },
+    select: {
+      id: true,
+      username: true,
+      display_name: true,
+      email: true,
+      avatar_url: true,
+      bio: true,
+      is_private: true,
+      is_verified: true,
+      created_at: true,
     },
   });
 };
