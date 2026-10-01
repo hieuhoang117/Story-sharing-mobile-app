@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import MainMenu from '../../components/Main-menu/Main-menu';
 import Post from '../../components/Post/post';
+import FollowButton from '../../components/followbutron';
 
 type ProfileTab = 'posts' | 'replies' | 'liked';
 type ProfilePost = {
@@ -219,6 +220,20 @@ export default function profile() {
                         <Text style={styles.followLabel}>Followers</Text>
                     </Pressable>
                 </View>
+                {!isOwnProfile && profileUserId && idUser && (
+                    <FollowButton
+                        userId={profileUserId}
+                        guestId={idUser}
+                        onFollowingChange={() => {
+                            void getFollowersByUserId(profileUserId)
+                                .then((response) => {
+                                    const followerData = response.data.data;
+                                    setFollowers(Array.isArray(followerData) ? followerData : []);
+                                })
+                                .catch((error) => console.error('Cập nhật số follower thất bại:', error));
+                        }}
+                    />
+                )}
             </View>
 
             <View style={styles.postsSection}>
