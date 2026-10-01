@@ -1,6 +1,44 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import * as otpService from '../services/otpService';
 import * as userService from '../services/userService';
+
+export const sendOtp = async (req: Request, res: Response) => {
+  const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: 'A valid email is required' });
+  }
+
+  try {
+    await otpService.sendOtp(email);
+    return res.status(200).json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'retryAfterSeconds' in error) {
+      return res.status(429).json({
+        message: error instanceof Error ? error.message : 'Please wait before requesting another OTP',
+        retryAfterSeconds: error.retryAfterSeconds,
+      });
+    }
+
+    console.error('Failed to send OTP:', error instanceof Error ? error.message : 'Unknown error');
+    return res.status(502).json({ message: 'Unable to send OTP email' });
+  }
+};
+
+export const verifyOtp = (req: Request, res: Response) => {
+  const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
+  const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code)) {
+    return res.status(400).json({ message: 'A valid email and 6-digit code are required' });
+  }
+
+  if (!otpService.verifyOtp(email, code)) {
+    return res.status(400).json({ message: 'OTP is invalid or expired' });
+  }
+
+  return res.status(200).json({ message: 'Email verified successfully' });
+};
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
