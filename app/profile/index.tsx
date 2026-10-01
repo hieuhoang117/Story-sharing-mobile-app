@@ -137,7 +137,9 @@ export default function profile() {
                     setProfilePosts([]);
                     setPostsError(status !== 404);
                 }
-                console.error('Lấy bài viết profile thất bại:', error);
+                if (status !== 404) {
+                    console.error('Lấy bài viết profile thất bại:', error);
+                }
             } finally {
                 if (isActive) setPostsLoading(false);
             }
