@@ -21,6 +21,16 @@ const User = {
       },
     });
   },
+  updateAvatar: async (id: string, avatarUrl: string) => {
+    return await prisma.users.update({
+      where: { id },
+      data: { avatar_url: avatarUrl },
+      select: {
+        id: true,
+        avatar_url: true,
+      },
+    });
+  },
   findByEmailOrUsername: async (email?: string, username?: string) => {
     const conditions = [];
     if (email) conditions.push({ email });

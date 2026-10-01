@@ -52,15 +52,28 @@ type ImageUploadAsset = {
 };
 
 export const uploadpic = (image: ImageUploadAsset) => {
+  const formData = createAvatarFormData(image);
+
+  return api.post('/uploads/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+export const updateMyAvatar = (image: ImageUploadAsset) => {
+  const formData = createAvatarFormData(image);
+
+  return api.put('/users/me/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+const createAvatarFormData = (image: ImageUploadAsset) => {
   const formData = new FormData();
   formData.append('avatar', {
     uri: image.uri,
     name: image.fileName ?? 'avatar.jpg',
     type: image.mimeType ?? 'image/jpeg',
   } as unknown as Blob);
-
-  return api.post('/uploads/avatar', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  return formData;
 };
 export default api;

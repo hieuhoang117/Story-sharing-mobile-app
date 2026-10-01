@@ -182,6 +182,19 @@ export default function profile() {
         <View style={styles.root}>
             {/* PHẦN THÔNG TIN CÁ NHÂN */}
             <View style={styles.profileHeader}>
+                {profileUserId && (
+                    <Pressable
+                        style={styles.userDetailButton}
+                        onPress={() => router.push({
+                            pathname: '/profile/userDetail',
+                            params: { userId: profileUserId },
+                        })}
+                        accessibilityRole="button"
+                        accessibilityLabel="Xem chi tiết hồ sơ"
+                    >
+                        <Ionicons name="person-outline" size={21} color="#315B4B" />
+                    </Pressable>
+                )}
                 <Image
                     source={profileUser?.avatar_url
                         ? { uri: profileUser.avatar_url }
@@ -403,6 +416,19 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
+        position: 'relative',
+    },
+    userDetailButton: {
+        alignItems: 'center',
+        backgroundColor: '#EAF2EF',
+        borderRadius: 20,
+        height: 40,
+        justifyContent: 'center',
+        position: 'absolute',
+        right: 16,
+        top: 12,
+        width: 40,
+        zIndex: 1,
     },
     avatar: {
         width: 80,

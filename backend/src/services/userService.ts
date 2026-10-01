@@ -109,6 +109,10 @@ export const getUserById = async (id: string) => {
   return await User.getById(id);
 }
 
+export const updateAvatarUrl = async (userId: string, avatarUrl: string) => {
+  return await User.updateAvatar(userId, avatarUrl);
+};
+
 export const getFollowersByUserId = async (userId: string) => {
   const follows = await Follow.findMany({
     where: { following_id: userId, status: 'accepted' },
