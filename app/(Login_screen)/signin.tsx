@@ -23,6 +23,7 @@ export default function SignUpScreen() {
 	const [username, setUsername] = useState('');
 	const [displayName, setDisplayName] = useState('');
 	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
 	const [secondsUntilResend, setSecondsUntilResend] = useState(0);
 	const [isSendingOtp, setIsSendingOtp] = useState(false);
 	const [isSigningUp, setIsSigningUp] = useState(false);
@@ -43,6 +44,14 @@ export default function SignUpScreen() {
 
 		setIsSendingOtp(true);
 		try {
+			const existence = await api.get('/users/check-exists', {
+				params: { email: normalizedEmail },
+			});
+			if (existence.data.data.emailExists) {
+				Alert.alert('Email đã được sử dụng', 'Hãy dùng email khác để đăng ký.');
+				return;
+			}
+
 			await api.post('/users/send-otp', { email: normalizedEmail });
 			setSecondsUntilResend(60);
 			Alert.alert('Đã gửi mã', 'Mã OTP đã được gửi đến email của bạn.');
@@ -60,12 +69,24 @@ export default function SignUpScreen() {
 		const cleanUsername = username.trim();
 		const cleanDisplayName = displayName.trim();
 
-		if (!EMAIL_PATTERN.test(normalizedEmail) || !/^\d{6}$/.test(otp.trim())) {
-			Alert.alert('Thiếu thông tin', 'Hãy nhập email hợp lệ và mã OTP gồm 6 chữ số.');
+		if (!EMAIL_PATTERN.test(normalizedEmail)) {
+			Alert.alert('Email chưa hợp lệ', 'Vui lòng nhập địa chỉ email đúng định dạng.');
 			return;
 		}
-		if (!cleanUsername || !cleanDisplayName || !password) {
-			Alert.alert('Thiếu thông tin', 'Hãy nhập username, tên hiển thị và mật khẩu.');
+		if (!/^\d{6}$/.test(otp.trim())) {
+			Alert.alert('Mã OTP chưa hợp lệ', 'Mã OTP phải gồm đúng 6 chữ số.');
+			return;
+		}
+		if (!cleanUsername || !cleanDisplayName || !password || !confirmPassword) {
+			Alert.alert('Thiếu thông tin', 'Hãy nhập username, tên hiển thị và cả hai ô mật khẩu.');
+			return;
+		}
+		if (password.length < 8) {
+			Alert.alert('Mật khẩu chưa hợp lệ', 'Mật khẩu phải có ít nhất 8 ký tự.');
+			return;
+		}
+		if (password !== confirmPassword) {
+			Alert.alert('Mật khẩu không khớp', 'Vui lòng nhập lại mật khẩu giống với mật khẩu ở trên.');
 			return;
 		}
 
@@ -179,6 +200,17 @@ export default function SignUpScreen() {
 					placeholderTextColor="#8B929C"
 					value={password}
 					onChangeText={setPassword}
+					secureTextEntry
+					autoComplete="new-password"
+				/>
+
+				<Text style={styles.label}>Xác nhận mật khẩu</Text>
+				<TextInput
+					style={styles.input}
+					placeholder="Nhập lại mật khẩu"
+					placeholderTextColor="#8B929C"
+					value={confirmPassword}
+					onChangeText={setConfirmPassword}
 					secureTextEntry
 					autoComplete="new-password"
 				/>

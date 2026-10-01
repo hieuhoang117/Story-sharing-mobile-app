@@ -3,9 +3,11 @@ import jwt from 'jsonwebtoken';
 import * as otpService from '../services/otpService';
 import * as userService from '../services/userService';
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const sendOtp = async (req: Request, res: Response) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || !EMAIL_PATTERN.test(email)) {
     return res.status(400).json({ message: 'A valid email is required' });
   }
 
@@ -29,7 +31,7 @@ export const verifyOtp = (req: Request, res: Response) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
   const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code)) {
+  if (!email || !EMAIL_PATTERN.test(email) || !/^\d{6}$/.test(code)) {
     return res.status(400).json({ message: 'A valid email and 6-digit code are required' });
   }
 
@@ -60,15 +62,24 @@ export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, display_name, avatar_url } = req.body;
 
-    if (!name || !email || !password) {
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
       return res.status(400).json({
         message: 'name, email and password are required',
       });
     }
 
+    const cleanName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!cleanName || !EMAIL_PATTERN.test(normalizedEmail)) {
+      return res.status(400).json({ message: 'A valid username and email are required' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+    }
+
     const user = await userService.createUser(
-      name.trim(),
-      email.trim().toLowerCase(),
+      cleanName,
+      normalizedEmail,
       password,
       typeof display_name === 'string' ? display_name.trim() : undefined,
       typeof avatar_url === 'string' && avatar_url.trim() ? avatar_url.trim() : undefined,
