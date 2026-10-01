@@ -193,6 +193,8 @@ const Post = {
                     content: true,
                     status: true,
                     created_at: true,
+                    reply_count: true,
+                    repost_count: true,
                 },
             });
 
@@ -207,7 +209,7 @@ const Post = {
 
     // Lấy danh sách comment của 1 bài viết, kèm thông tin người viết
     getCommentsByPostId: async (post_id: string) => {
-        return await prisma.posts.findMany({
+        const comments = await prisma.posts.findMany({
             where: {
                 parent_post_id: post_id,
                 status: 'active',
@@ -217,7 +219,11 @@ const Post = {
                 user_id: true,
                 content: true,
                 like_count: true,
+                reply_count: true,
                 created_at: true,
+                _count: {
+                    select: { reposts: true },
+                },
                 users: {
                     select: {
                         username: true,
@@ -228,6 +234,11 @@ const Post = {
             },
             orderBy: { created_at: 'asc' },
         });
+
+        return comments.map(({ _count, ...comment }) => ({
+            ...comment,
+            repost_count: _count.reposts,
+        }));
     },
     delete: async (id: string) => {
         return await prisma.posts.delete({ where: { id } });

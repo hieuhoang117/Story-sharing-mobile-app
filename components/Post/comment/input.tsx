@@ -15,6 +15,8 @@ export interface Comment {
   user_id: string;
   content: string;
   like_count: number;
+  reply_count?: number;
+  repost_count?: number;
   created_at: string;
   users: {
     username: string;

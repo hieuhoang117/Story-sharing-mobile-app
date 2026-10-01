@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { createlike, deletelike, getlikesbypost } from '@/services/postapi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
@@ -9,16 +10,18 @@ interface PostButtonProps {
     post_id: string;
     user_id: string;
     comentcout:number;
+    shareCount?: number;
 }
 
-const PostButton = ({ post_id, user_id,comentcout }: PostButtonProps) => {
+const PostButton = ({ post_id, user_id,comentcout, shareCount = 0 }: PostButtonProps) => {
+    const { idUser } = useAuth();
     interface liketype {
         user_id: string;
         id: string;
     }
 
     const [like, setlike] = useState<liketype[]>([]);
-    const [isLiked, setIsLiked] = useState(false);
+    const isLiked = like.some((item) => item.user_id === idUser);
 
     const fetchlike = async () => {
         try {
@@ -41,7 +44,7 @@ const PostButton = ({ post_id, user_id,comentcout }: PostButtonProps) => {
     const handledeletelike = async () => {
         if (!isLiked) return;
 
-        const currentLike = like.find((item) => item.user_id === user_id);
+        const currentLike = like.find((item) => item.user_id === idUser);
         if (!currentLike) return;
 
         try {
@@ -52,18 +55,23 @@ const PostButton = ({ post_id, user_id,comentcout }: PostButtonProps) => {
         }
     };
 
-    const checkIsLiked = () => {
-        const liked = like.some((item) => item.user_id === user_id);
-        setIsLiked(liked);
-    };
-
     useEffect(() => {
-        fetchlike();
+        let isActive = true;
+
+        const loadLikes = async () => {
+            try {
+                const response = await getlikesbypost(post_id);
+                if (isActive) setlike(response.data.data ?? []);
+            } catch (error) {
+                if (isActive) console.error('get all like failed:', error);
+            }
+        };
+
+        void loadLikes();
+        return () => {
+            isActive = false;
+        };
     }, [post_id]);
-
-    useEffect(() => {
-        checkIsLiked();
-    }, [like, user_id]);
 
     return (
         <ThemedView style={styles.container}>
@@ -101,7 +109,7 @@ const PostButton = ({ post_id, user_id,comentcout }: PostButtonProps) => {
                     style={[styles.likeButton]}
                 >
                     <MaterialIcons name={'share'} size={24} color={'black'} />
-                    <Text style={styles.likeCount}>20</Text>
+                    <Text style={styles.likeCount}>{shareCount}</Text>
                 </Pressable>
             </View>
         </ThemedView>
