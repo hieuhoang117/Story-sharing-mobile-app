@@ -16,7 +16,19 @@ const User = {
         avatar_url: true,
       },
     });
-  }
+  },
+  findByEmailOrUsername: async (email?: string, username?: string) => {
+    const conditions = [];
+    if (email) conditions.push({ email });
+    if (username) conditions.push({ username });
+
+    if (conditions.length === 0) return [];
+
+    return await prisma.users.findMany({
+      where: { OR: conditions },
+      select: { email: true, username: true },
+    });
+  },
 };
 
 export default User;

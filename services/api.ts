@@ -16,6 +16,9 @@ api.interceptors.request.use(async (config) => {
 export const login = (email: string, password: string) => {
   return api.post('/users/login', { email, password });
 };
+export const checkUserExists = (params: { email?: string; username?: string }) => {
+  return api.get('/users/check-exists', { params });
+};
 export const getUserById = (id: string) => {
   return api.get(`/users/${id}`);
 };

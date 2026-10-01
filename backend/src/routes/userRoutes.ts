@@ -1,20 +1,21 @@
 import { Router } from 'express';
-import { followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, verifyOtp } from '../controllers/userController';
+import { checkUserExists, followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, verifyOtp } from '../controllers/userController';
 import { verifyToken } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/register', registerUser);   
-router.post('/login', loginUser);          
+router.get('/check-exists', checkUserExists);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
 
-router.get('/', verifyToken, getUsers);         
+router.get('/', verifyToken, getUsers);
 router.get('/search', verifyToken, searchUsers);
 router.get('/:id/followers', verifyToken, getFollowersByUserId);
 router.get('/:id/following', verifyToken, getFollowingByUserId);
 router.post('/:id/follow', verifyToken, followUser);
 router.delete('/:id/follow', verifyToken, unfollowUser);
-router.get('/:id', verifyToken, getUserById);   
+router.get('/:id', verifyToken, getUserById);
 
 export default router;

@@ -40,6 +40,22 @@ export const verifyOtp = (req: Request, res: Response) => {
   return res.status(200).json({ message: 'Email verified successfully' });
 };
 
+export const checkUserExists = async (req: Request, res: Response) => {
+  try {
+    const email = typeof req.query.email === 'string' ? req.query.email.trim() : undefined;
+    const username = typeof req.query.username === 'string' ? req.query.username.trim() : undefined;
+
+    if (!email && !username) {
+      return res.status(400).json({ message: 'Email or username is required' });
+    }
+
+    const result = await userService.checkExists(email, username);
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error checking user existence', error });
+  }
+};
+
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, display_name, avatar_url } = req.body;

@@ -40,6 +40,23 @@ export const getUserByEmail = async (email: string) => {
   });
 }
 
+export const checkExists = async (email?: string, username?: string) => {
+  const cleanEmail = email?.trim().toLowerCase();
+  const cleanUsername = username?.trim();
+
+  const matchedUsers = await User.findByEmailOrUsername(cleanEmail, cleanUsername);
+
+  const emailExists = cleanEmail
+    ? matchedUsers.some(u => u.email.toLowerCase() === cleanEmail)
+    : false;
+
+  const usernameExists = cleanUsername
+    ? matchedUsers.some(u => u.username.toLowerCase() === cleanUsername.toLowerCase())
+    : false;
+
+  return { exists: emailExists || usernameExists, emailExists, usernameExists };
+};
+
 export const getAllUsers = async () => {
   return await User.findMany({
     select: {
