@@ -124,7 +124,14 @@ export const getUserById = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({ data: user });
+
+    const requesterId = (req as any).user.id as string;
+    if (requesterId === userId) {
+      return res.status(200).json({ data: user });
+    }
+
+    const { email: _email, ...publicProfile } = user;
+    return res.status(200).json({ data: publicProfile });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user', error });
   }

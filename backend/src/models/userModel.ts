@@ -14,6 +14,10 @@ const User = {
         display_name: true,
         email: true,
         avatar_url: true,
+        bio: true,
+        is_private: true,
+        is_verified: true,
+        created_at: true,
       },
     });
   },
