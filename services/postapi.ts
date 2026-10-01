@@ -10,8 +10,8 @@ export const getpostById = (id: string) => {
 export const getAllPosts = () => {
   return api.get(`/posts/allPost`);
 };
-export const getMyReplies = () => {
-  return api.get('/posts/my/replies');
+export const getMyReplies = (userId: string) => {
+  return api.get('/posts/my/replies', { params: { user_id: userId } });
 };
 export const getMyLikedPosts = () => {
   return api.get('/posts/my/liked-posts');

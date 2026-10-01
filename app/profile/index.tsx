@@ -1,8 +1,8 @@
 import { useAuth } from '@/context/AuthContext';
-import { getFollowersByUserId, getFollowingByUserId, getpostbyuserid } from '@/services/api';
+import { getFollowersByUserId, getFollowingByUserId, getUserById, getpostbyuserid } from '@/services/api';
 import { getMyLikedPosts, getMyReplies, getpostById } from '@/services/postapi';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import MainMenu from '../../components/Main-menu/Main-menu';
@@ -22,6 +22,11 @@ type FollowUser = {
     display_name: string | null;
     avatar_url: string | null;
 };
+type ProfileUser = {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+};
 
 const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
     { key: 'posts', label: 'Bài đăng' },
@@ -30,7 +35,13 @@ const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
 ];
 
 export default function profile() {
-    const { idUser, username, displayname, avatar } = useAuth();
+    const { idUser } = useAuth();
+    const { userId: passedUserId } = useLocalSearchParams<{ userId?: string }>();
+    const resolvedUserId = Array.isArray(passedUserId) ? passedUserId[0] : passedUserId;
+    const profileUserId = resolvedUserId || idUser;
+    const isOwnProfile = profileUserId === idUser;
+    const [profileUser, setProfileUser] = useState<ProfileUser | null>(null);
+    const [profileUserLoading, setProfileUserLoading] = useState(false);
     const [followers, setFollowers] = useState<FollowUser[]>([]);
     const [following, setFollowing] = useState<FollowUser[]>([]);
     const [followListType, setFollowListType] = useState<'followers' | 'following' | null>(null);
@@ -41,9 +52,34 @@ export default function profile() {
     const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
     const [postsLoading, setPostsLoading] = useState(false);
     const [postsError, setPostsError] = useState(false);
+    const displayedTab: ProfileTab = isOwnProfile || activeTab === 'replies' ? activeTab : 'posts';
+    const visibleTabs = PROFILE_TABS.filter((tab) => isOwnProfile || tab.key !== 'liked');
 
     useEffect(() => {
-        if (!idUser) return;
+        if (!profileUserId) return;
+
+        let isActive = true;
+        setProfileUserLoading(true);
+        setProfileUser(null);
+        getUserById(profileUserId)
+            .then((response) => {
+                if (isActive) setProfileUser(response.data.data);
+            })
+            .catch((error) => {
+                if (isActive) setProfileUser(null);
+                console.error('Lấy thông tin profile thất bại:', error);
+            })
+            .finally(() => {
+                if (isActive) setProfileUserLoading(false);
+            });
+
+        return () => {
+            isActive = false;
+        };
+    }, [profileUserId]);
+
+    useEffect(() => {
+        if (!profileUserId) return;
 
         let isActive = true;
         const fetchFollowCounts = async () => {
@@ -51,8 +87,8 @@ export default function profile() {
             setFollowListsError(false);
             try {
                 const [followersResponse, followingResponse] = await Promise.all([
-                    getFollowersByUserId(idUser),
-                    getFollowingByUserId(idUser),
+                    getFollowersByUserId(profileUserId),
+                    getFollowingByUserId(profileUserId),
                 ]);
 
                 if (!isActive) return;
@@ -73,10 +109,10 @@ export default function profile() {
         return () => {
             isActive = false;
         };
-    }, [idUser]);
+    }, [profileUserId]);
 
     useEffect(() => {
-        if (!idUser) return;
+        if (!profileUserId) return;
 
         let isActive = true;
         const fetchProfilePosts = async () => {
@@ -84,10 +120,10 @@ export default function profile() {
             setPostsError(false);
 
             try {
-                const response = activeTab === 'posts'
-                    ? await getpostbyuserid(idUser)
-                    : activeTab === 'replies'
-                        ? await getMyReplies()
+                const response = displayedTab === 'posts'
+                    ? await getpostbyuserid(profileUserId)
+                    : displayedTab === 'replies'
+                        ? await getMyReplies(profileUserId)
                         : await getMyLikedPosts();
 
                 if (isActive) {
@@ -110,11 +146,11 @@ export default function profile() {
         return () => {
             isActive = false;
         };
-    }, [activeTab, idUser]);
+    }, [displayedTab, profileUserId]);
 
-    const emptyMessage = activeTab === 'posts'
+    const emptyMessage = displayedTab === 'posts'
         ? 'Chưa có bài đăng nào'
-        : activeTab === 'replies'
+        : displayedTab === 'replies'
             ? 'Chưa có câu trả lời nào'
             : 'Bạn chưa thích bài viết nào';
     const followUsers = followListType === 'followers' ? followers : following;
@@ -144,13 +180,17 @@ export default function profile() {
             {/* PHẦN THÔNG TIN CÁ NHÂN */}
             <View style={styles.profileHeader}>
                 <Image
-                    source={avatar ? { uri: avatar } : require('@/assets/images/avartarDefault.png')}
+                    source={profileUser?.avatar_url
+                        ? { uri: profileUser.avatar_url }
+                        : require('@/assets/images/avartarDefault.png')}
                     style={styles.avatar}
                 />
 
                 <View style={styles.infoText}>
-                    <Text style={styles.displayName}>{displayname}</Text>
-                    <Text style={styles.username}>@{username}</Text>
+                    <Text style={styles.displayName}>
+                        {profileUser?.display_name || profileUser?.username || (profileUserLoading ? 'Đang tải...' : 'Người dùng')}
+                    </Text>
+                    {profileUser?.username && <Text style={styles.username}>@{profileUser.username}</Text>}
                 </View>
 
                 <View style={styles.followRow}>
@@ -183,8 +223,8 @@ export default function profile() {
 
             <View style={styles.postsSection}>
                 <View style={styles.tabs} accessibilityRole="tablist">
-                    {PROFILE_TABS.map((tab) => {
-                        const selected = activeTab === tab.key;
+                    {visibleTabs.map((tab) => {
+                        const selected = displayedTab === tab.key;
                         return (
                             <Pressable
                                 key={tab.key}
@@ -209,7 +249,7 @@ export default function profile() {
                     <FlatList
                         data={profilePosts}
                         keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => activeTab === 'replies' ? (
+                        renderItem={({ item }) => displayedTab === 'replies' ? (
                             <Pressable
                                 style={styles.replyItem}
                                 onPress={() => void openReplyPost(item)}

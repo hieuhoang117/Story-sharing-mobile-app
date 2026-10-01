@@ -191,14 +191,21 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
     return (
         <View style={styles.container}>
             <View style={styles.heading}>
-                <Image style={styles.avatar} source={{ uri: user?.avatar_url }} />
-                <View style={styles.userInfo}>
-                    <View style={styles.nameRow}>
-                        <Text style={styles.displayName} numberOfLines={1}>{user?.display_name}</Text>
-                        {post?.created_at && <Text style={styles.createdAt}>{formatPostDate(post.created_at)}</Text>}
+                <Pressable
+                    style={styles.authorPressable}
+                    onPress={() => router.push({ pathname: '/profile', params: { userId } })}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Mở trang cá nhân của ${user?.display_name ?? user?.username ?? 'người đăng'}`}
+                >
+                    <Image style={styles.avatar} source={{ uri: user?.avatar_url }} />
+                    <View style={styles.userInfo}>
+                        <View style={styles.nameRow}>
+                            <Text style={styles.displayName} numberOfLines={1}>{user?.display_name}</Text>
+                            {post?.created_at && <Text style={styles.createdAt}>{formatPostDate(post.created_at)}</Text>}
+                        </View>
+                        <Text style={styles.username}>{user?.username}</Text>
                     </View>
-                    <Text style={styles.username}>{user?.username}</Text>
-                </View>
+                </Pressable>
                 {idUser && post?.visibility && (
                     <Pressable
                         style={styles.visibilityMenuButton}
@@ -525,6 +532,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         marginBottom: 12,
-    }
+    },
+    authorPressable: {
+        alignItems: 'center',
+        flex: 1,
+        flexDirection: 'row',
+    },
 
 });

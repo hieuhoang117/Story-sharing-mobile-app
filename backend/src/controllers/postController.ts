@@ -196,7 +196,11 @@ export const getpostbyuserid = async (req: Request, res: Response) => {
 
 export const getMyReplies = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.id as string;
+        const userId = typeof req.query.user_id === 'string' ? req.query.user_id : '';
+        if (!userId) {
+            return res.status(400).json({ message: 'user_id is required' });
+        }
+
         const replies = await post.getRepliesByUserId(userId);
         return res.status(200).json({ data: replies });
     } catch (error) {
