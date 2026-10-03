@@ -8,7 +8,7 @@ import api from '../../services/api';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setIsLoggedIn, setidUser, setavatar, setdisplayname, setusername } = useAuth();
+  const { setIsLoggedIn, setIsPrivate, setidUser, setavatar, setdisplayname, setusername } = useAuth();
 
   const handleLogin = () => {
     if (email == null||email.length == 0 || password == null|| password.length == 0) {
@@ -23,6 +23,7 @@ export default function LoginScreen() {
           await SecureStore.setItemAsync('userToken', user.token);
 
           setidUser(user.id);
+          setIsPrivate(user.is_private === 1);
           setavatar(user.avatar_url);
           setdisplayname(user.display_name);
           setusername(user.username);

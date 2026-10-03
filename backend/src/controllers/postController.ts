@@ -3,6 +3,7 @@ import type { PostVisibility } from '../services/postService';
 import * as like from '../services/postService';
 import * as post from '../services/postService';
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from '../services/uploadService';
+import * as userService from '../services/userService';
 
 export const addPostImage = async (req: Request, res: Response) => {
     const { post_id } = req.params;
@@ -182,6 +183,16 @@ export const getpostbyuserid = async (req: Request, res: Response) => {
     try {
         const { user_id } = req.params;
         const userid = Array.isArray(user_id) ? user_id[0] : user_id;
+        const viewerId = (req as any).user.id as string;
+        const profileUser = await userService.getUserById(userid);
+
+        if (!profileUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (profileUser.is_private === 1 && viewerId !== userid) {
+            return res.status(403).json({ message: 'This account is private' });
+        }
+
         const postdata = await post.getPostByUserId(userid);
 
         if (!postdata || postdata.length === 0) {

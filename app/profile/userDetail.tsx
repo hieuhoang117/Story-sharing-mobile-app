@@ -3,6 +3,7 @@ import { deleteImage, getUserById, updateMyAvatar, updateMyPrivacy, uploadpic } 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
+import { Button } from 'expo-router/react-navigation';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -24,7 +25,7 @@ interface UserProfile {
 }
 
 export default function UserDetailScreen() {
-	const { idUser, setavatar } = useAuth();
+	const { idUser, setavatar,logout } = useAuth();
 	const { userId: routeUserId } = useLocalSearchParams<{ userId?: string }>();
 	const userId = (Array.isArray(routeUserId) ? routeUserId[0] : routeUserId) || idUser;
 	const [user, setUser] = useState<UserProfile | null>(null);
@@ -143,6 +144,8 @@ export default function UserDetailScreen() {
 	return (
 		<View style={styles.screen}>
 			<Stack.Screen options={{ title: 'Chi tiết hồ sơ', headerBackButtonDisplayMode: 'minimal' }} />
+
+			<Button onPress={logout}>Đăng xuất</Button>
 
 			{!userId ? (
 				<View style={styles.state}>

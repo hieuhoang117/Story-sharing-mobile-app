@@ -24,9 +24,11 @@ type FollowUser = {
     avatar_url: string | null;
 };
 type ProfileUser = {
+    id: string;
     username: string;
     display_name: string | null;
     avatar_url: string | null;
+    is_private: number;
 };
 
 const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
@@ -54,6 +56,8 @@ export default function profile() {
     const [postsLoading, setPostsLoading] = useState(false);
     const [postsError, setPostsError] = useState(false);
     const [accountStatus, setAccountStatus] = useState<'active' | 'suspended' | 'banned' | null>(null);
+    const isPrivateProfile = !isOwnProfile && profileUser?.id === profileUserId && profileUser?.is_private === 1;
+    const canShowProfileSocialData = isOwnProfile || (profileUser?.id === profileUserId && !isPrivateProfile);
     const displayedTab: ProfileTab = isOwnProfile || activeTab === 'replies' ? activeTab : 'posts';
     const visibleTabs = PROFILE_TABS.filter((tab) => isOwnProfile || tab.key !== 'liked');
 
@@ -86,9 +90,16 @@ export default function profile() {
 
     useEffect(() => {
         if (!profileUserId) return;
-        if (accountStatus !== 'active') {
+        if (!isOwnProfile && profileUser?.id !== profileUserId) {
             setFollowers([]);
             setFollowing([]);
+            setFollowListsLoading(false);
+            return;
+        }
+        if (accountStatus !== 'active' || isPrivateProfile) {
+            setFollowers([]);
+            setFollowing([]);
+            setFollowListsLoading(false);
             return;
         }
 
@@ -120,10 +131,22 @@ export default function profile() {
         return () => {
             isActive = false;
         };
-    }, [accountStatus, profileUserId]);
+    }, [accountStatus, isOwnProfile, isPrivateProfile, profileUser?.id, profileUserId]);
 
     useEffect(() => {
         if (!profileUserId) return;
+        if (!isOwnProfile && profileUser?.id !== profileUserId) {
+            setProfilePosts([]);
+            setPostsError(false);
+            setPostsLoading(profileUserLoading);
+            return;
+        }
+        if (isPrivateProfile) {
+            setProfilePosts([]);
+            setPostsError(false);
+            setPostsLoading(false);
+            return;
+        }
 
         let isActive = true;
         const fetchProfilePosts = async () => {
@@ -145,9 +168,9 @@ export default function profile() {
                 const status = (error as { response?: { status?: number } }).response?.status;
                 if (isActive) {
                     setProfilePosts([]);
-                    setPostsError(status !== 404);
+                    setPostsError(status !== 404 && status !== 403);
                 }
-                if (status !== 404) {
+                if (status !== 404 && status !== 403) {
                     console.error('Lấy bài viết profile thất bại:', error);
                 }
             } finally {
@@ -159,7 +182,7 @@ export default function profile() {
         return () => {
             isActive = false;
         };
-    }, [displayedTab, profileUserId]);
+    }, [displayedTab, isOwnProfile, isPrivateProfile, profileUser?.id, profileUserLoading, profileUserId]);
 
     const emptyMessage = displayedTab === 'posts'
         ? 'Chưa có bài đăng nào'
@@ -219,7 +242,7 @@ export default function profile() {
                     {profileUser?.username && <Text style={styles.username}>@{profileUser.username}</Text>}
                 </View>
 
-                <View style={styles.followRow}>
+                {canShowProfileSocialData && <View style={styles.followRow}>
                     <Pressable
                         style={styles.followItem}
                         onPress={() => {
@@ -244,8 +267,8 @@ export default function profile() {
                         <Text style={styles.followNumber}>{followers.length}</Text>
                         <Text style={styles.followLabel}>Followers</Text>
                     </Pressable>
-                </View>
-                {!isOwnProfile && profileUserId && idUser && (
+                </View>}
+                {canShowProfileSocialData && !isOwnProfile && profileUserId && idUser && (
                     <FollowButton
                         userId={profileUserId}
                         guestId={idUser}
@@ -261,6 +284,15 @@ export default function profile() {
                 )}
             </View>
 
+            {isPrivateProfile ? (
+                <View style={styles.privateProfileNotice}>
+                    <Ionicons name="lock-closed-outline" size={32} color="#315B4B" />
+                    <Text style={styles.privateProfileTitle}>Tài khoản riêng tư</Text>
+                    <Text style={styles.privateProfileMessage}>
+                        Theo dõi tài khoản để xem bài đăng khi yêu cầu của bạn được chấp thuận.
+                    </Text>
+                </View>
+            ) : (
             <View style={styles.postsSection}>
                 <View style={styles.tabs} accessibilityRole="tablist">
                     {visibleTabs.map((tab) => {
@@ -311,6 +343,7 @@ export default function profile() {
                     />
                 )}
             </View>
+            )}
 
             <MainMenu />
 
@@ -561,6 +594,25 @@ const styles = StyleSheet.create({
     postsSection: {
         flex: 1,
         paddingTop: 8,
+    },
+    privateProfileNotice: {
+        alignItems: 'center',
+        flex: 1,
+        gap: 10,
+        justifyContent: 'center',
+        paddingHorizontal: 28,
+    },
+    privateProfileTitle: {
+        color: '#20382F',
+        fontSize: 18,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
+    privateProfileMessage: {
+        color: '#718078',
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: 'center',
     },
     tabs: {
         flexDirection: 'row',

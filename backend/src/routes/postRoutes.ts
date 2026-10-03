@@ -15,7 +15,7 @@ import { upload } from '../middlewares/uploadMiddleware';
 const router = Router();
 
 //post-----------------------
-router.get('/postbyuser/:user_id', getpostbyuserid);
+router.get('/postbyuser/:user_id', verifyToken, getpostbyuserid);
 router.get('/my/replies', verifyToken, getMyReplies);
 router.get('/my/liked-posts', verifyToken, getMyLikedPosts);
 router.get('/allPost', verifyToken, getAllposts);
