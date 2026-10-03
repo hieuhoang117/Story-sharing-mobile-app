@@ -69,3 +69,10 @@ export const getNotificationsByUserId = async (userId: string, limit: number) =>
     take: limit,
   });
 };
+
+export const markNotificationAsRead = async (notificationId: string, userId: string) => {
+  return Notification.updateMany({
+    where: { id: notificationId, user_id: userId },
+    data: { is_read: 1 },
+  });
+};

@@ -5,6 +5,7 @@ const Notification = {
   findUnique: prisma.notifications.findUnique,
   findMany: prisma.notifications.findMany,
   update: prisma.notifications.update,
+  updateMany: prisma.notifications.updateMany,
   delete: prisma.notifications.delete,
 };
 

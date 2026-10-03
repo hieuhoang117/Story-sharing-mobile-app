@@ -31,6 +31,9 @@ export const updateMyBio = (userId: string, bio: string) => {
 export const getNotificationsByUserId = (userId: string, limit = 50) => {
   return api.get(`/notifications/${userId}`, { params: { limit } });
 };
+export const markNotificationAsRead = (notificationId: string) => {
+  return api.patch(`/notifications/${notificationId}/read`);
+};
 export const getFollowersByUserId = (id: string) => {
   return api.get(`/users/${id}/followers`);
 };
