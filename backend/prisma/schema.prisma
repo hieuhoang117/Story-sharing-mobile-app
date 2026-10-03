@@ -55,17 +55,18 @@ model likes {
 }
 
 model media {
-  id            String       @id @default(dbgenerated("(uuid())")) @db.Char(36)
-  post_id       String       @db.Char(36)
-  type          media_type
-  url           String       @db.Text
-  thumbnail_url String?      @db.Text
-  width         Int?         @db.UnsignedInt
-  height        Int?         @db.UnsignedInt
-  order_index   Int          @default(0) @db.UnsignedTinyInt
-  status        media_status @default(active)
-  created_at    DateTime     @default(now()) @db.Timestamp(0)
-  posts         posts        @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_media_post")
+  id                   String       @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  post_id              String       @db.Char(36)
+  type                 media_type
+  url                  String       @db.Text
+  thumbnail_url        String?      @db.Text
+  width                Int?         @db.UnsignedInt
+  height               Int?         @db.UnsignedInt
+  order_index          Int          @default(0) @db.UnsignedTinyInt
+  status               media_status @default(active)
+  created_at           DateTime     @default(now()) @db.Timestamp(0)
+  cloudinary_public_id String?      @db.VarChar(255)
+  posts                posts        @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_media_post")
 
   @@index([post_id], map: "idx_media_post")
 }
@@ -172,6 +173,7 @@ model users {
   is_verified                                 Int             @default(0) @db.TinyInt
   created_at                                  DateTime        @default(now()) @db.Timestamp(0)
   updated_at                                  DateTime        @default(now()) @db.Timestamp(0)
+  cloudinary_public_id                        String?         @db.VarChar(255)
   blocks_blocks_target_user_idTousers         blocks[]        @relation("blocks_target_user_idTousers")
   blocks_blocks_user_idTousers                blocks[]        @relation("blocks_user_idTousers")
   follows_follows_follower_idTousers          follows[]       @relation("follows_follower_idTousers")
