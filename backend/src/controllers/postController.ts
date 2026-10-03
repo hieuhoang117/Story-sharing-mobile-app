@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import * as notificationService from '../services/notificationService';
 import type { PostVisibility } from '../services/postService';
 import * as like from '../services/postService';
 import * as post from '../services/postService';
@@ -119,7 +120,18 @@ export const createLike = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'post_id is required' });
         }
 
+        const postData = await post.getPostById(postid);
+        if (!postData) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
         const likeData = await like.createLike(user_id, postid);
+        await notificationService.createActivityNotification({
+            user_id: postData.user_id,
+            actor_id: user_id,
+            type: 'like',
+            post_id: postid,
+        });
         return res.status(201).json({ data: likeData });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating like', error });
@@ -137,7 +149,18 @@ export const createComment = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'post_id and content are required' });
         }
 
+        const parentPost = await post.getPostById(postid);
+        if (!parentPost) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
         const comment = await post.createComment(postid, user_id, content.trim());
+        await notificationService.createActivityNotification({
+            user_id: parentPost.user_id,
+            actor_id: user_id,
+            type: 'reply',
+            post_id: postid,
+        });
         return res.status(201).json({ data: comment });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating comment', error });

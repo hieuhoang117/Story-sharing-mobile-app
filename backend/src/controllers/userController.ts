@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import * as notificationService from '../services/notificationService';
 import * as otpService from '../services/otpService';
 import * as userService from '../services/userService';
 
@@ -288,6 +289,14 @@ export const followUser = async (req: Request, res: Response) => {
     }
     if (result.alreadyExists) {
       return res.status(409).json({ message: 'Follow relationship already exists', data: result.follow });
+    }
+
+    if (result.follow.status === 'accepted') {
+      await notificationService.createActivityNotification({
+        user_id: followingId,
+        actor_id: followerId,
+        type: 'follow',
+      });
     }
 
     const message = result.follow.status === 'pending'

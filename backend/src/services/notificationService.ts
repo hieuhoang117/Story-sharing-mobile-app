@@ -3,12 +3,14 @@ import Notification from '../models/notificationModel';
 export const notificationTypes = ['like', 'reply', 'follow', 'mention', 'repost'] as const;
 export type NotificationType = (typeof notificationTypes)[number];
 
-export const createNotification = async (data: {
+type CreateNotificationData = {
   user_id: string;
   actor_id: string;
   type: NotificationType;
   post_id?: string;
-}) => {
+};
+
+export const createNotification = async (data: CreateNotificationData) => {
   return Notification.create({
     data: {
       user_id: data.user_id,
@@ -26,6 +28,16 @@ export const createNotification = async (data: {
       created_at: true,
     },
   });
+};
+
+export const createActivityNotification = async (data: CreateNotificationData) => {
+  if (data.user_id === data.actor_id) return;
+
+  try {
+    await createNotification(data);
+  } catch (error) {
+    console.error('Failed to create activity notification:', error);
+  }
 };
 
 export const getNotificationsByUserId = async (userId: string, limit: number) => {
