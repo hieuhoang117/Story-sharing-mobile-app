@@ -1,5 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
-import { getUserById, updateMyAvatar, uploadpic } from '@/services/api';
+import { deleteImage, getUserById, updateMyAvatar, uploadpic } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -26,6 +26,7 @@ export default function UserDetailScreen() {
 	const { userId: routeUserId } = useLocalSearchParams<{ userId?: string }>();
 	const userId = (Array.isArray(routeUserId) ? routeUserId[0] : routeUserId) || idUser;
 	const [user, setUser] = useState<UserProfile | null>(null);
+	const [publicIdAvatar, setPublicIdAvatar] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
@@ -40,6 +41,7 @@ export default function UserDetailScreen() {
 				const response = await getUserById(userId);
 				if (isActive) {
 					setUser(response.data.data);
+					setPublicIdAvatar(response.data.data.cloudinary_public_id ?? null);
 					setError(false);
 				}
 			} catch {
@@ -63,8 +65,12 @@ export default function UserDetailScreen() {
 
 		setIsUpdatingAvatar(true);
 		try {
+			if (publicIdAvatar && publicIdAvatar !== DEFAULT_AVATAR_PUBLIC_ID) {
+				await deleteImage(publicIdAvatar);
+			}
 			await updateMyAvatar(user.id, DEFAULT_AVATAR_URL, DEFAULT_AVATAR_PUBLIC_ID);
 			setUser((current) => current ? { ...current, avatar_url: DEFAULT_AVATAR_URL } : current);
+			setPublicIdAvatar(DEFAULT_AVATAR_PUBLIC_ID);
 			setavatar(DEFAULT_AVATAR_URL);
 			Alert.alert('Đã xóa ảnh đại diện', 'Avatar đã được đổi về ảnh mặc định.');
 		} catch (requestError) {
@@ -90,13 +96,12 @@ export default function UserDetailScreen() {
 
 			const asset = selection.assets[0];
 			const uploadResponse = await uploadpic(asset);
-			const avatarUrl = uploadResponse.data.data.url as string | undefined;
-			const publicId = uploadResponse.data.data.public_id as string | undefined;
-			if (!avatarUrl) throw new Error('Không nhận được URL ảnh từ máy chủ.');
-			if (!publicId) throw new Error('Không nhận được public_id ảnh từ máy chủ.');
+			const { url: avatarUrl, public_id: publicId } = uploadResponse.data.data;
+			if (!avatarUrl || !publicId) throw new Error('Máy chủ không trả đủ URL và public_id ảnh.');
 
 			await updateMyAvatar(user.id, avatarUrl, publicId);
 			setUser((current) => current ? { ...current, avatar_url: avatarUrl } : current);
+			setPublicIdAvatar(publicId);
 			setavatar(avatarUrl);
 			Alert.alert('Đã đổi ảnh đại diện', 'Avatar của bạn đã được cập nhật.');
 		} catch (requestError) {

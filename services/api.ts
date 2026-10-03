@@ -51,16 +51,28 @@ type ImageUploadAsset = {
   mimeType?: string | null;
 };
 
+type AvatarUploadResponse = {
+  message: string;
+  data: {
+    url: string;
+    public_id: string;
+  };
+};
+
 export const uploadpic = (image: ImageUploadAsset) => {
   const formData = createAvatarFormData(image);
 
-  return api.post('/uploads/avatar', formData, {
+  return api.post<AvatarUploadResponse>('/uploads/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
 
 export const updateMyAvatar = (userId: string, avatarUrl: string, publicId: string) => {
   return api.put(`/users/${userId}/avatar`, { avatar_url: avatarUrl, public_id: publicId });
+};
+
+export const deleteImage = (publicId: string) => {
+  return api.delete('/uploads/avatar', { data: { public_id: publicId } });
 };
 
 const createAvatarFormData = (image: ImageUploadAsset) => {
