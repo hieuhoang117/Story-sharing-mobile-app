@@ -112,6 +112,7 @@ const Post = {
                 created_at: true,
                 updated_at: true,
             },
+            orderBy: { created_at: 'desc' },
         });
     },
     getRepliesByUserId: async (user_id: string) => {

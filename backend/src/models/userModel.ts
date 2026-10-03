@@ -19,6 +19,7 @@ const User = {
         is_private: true,
         is_verified: true,
         created_at: true,
+        status: true,
       },
     });
   },
