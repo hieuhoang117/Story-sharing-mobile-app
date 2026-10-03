@@ -8,7 +8,8 @@ import api from '../../services/api';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setIsLoggedIn, setIsPrivate, setidUser, setavatar, setdisplayname, setusername } = useAuth();
+  const { setIsLoggedIn, setIsPrivate, setidUser,
+     setavatar, setdisplayname, setusername, setbio } = useAuth();
 
   const handleLogin = () => {
     if (email == null||email.length == 0 || password == null|| password.length == 0) {
@@ -28,6 +29,7 @@ export default function LoginScreen() {
           setdisplayname(user.display_name);
           setusername(user.username);
           setIsLoggedIn(true);
+          setbio(user.bio);
           router.replace('/main_screen');
         })
         .catch(error => {

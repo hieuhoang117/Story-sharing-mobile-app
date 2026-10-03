@@ -1,10 +1,10 @@
 import { useAuth } from '@/context/AuthContext';
-import { deleteImage, getUserById, updateMyAvatar, updateMyPrivacy, uploadpic } from '@/services/api';
+import { deleteImage, getUserById, updateMyAvatar, updateMyBio, updateMyPrivacy, uploadpic } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
 const DEFAULT_AVATAR_PUBLIC_ID = 'default-avatar-icon-of-social-media-user-vector';
@@ -36,6 +36,9 @@ export default function UserDetailScreen() {
 	const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
 	const [selectedIsPrivate, setSelectedIsPrivate] = useState<0 | 1>(0);
 	const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
+	const [isBioModalVisible, setIsBioModalVisible] = useState(false);
+	const [draftBio, setDraftBio] = useState('');
+	const [isUpdatingBio, setIsUpdatingBio] = useState(false);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -132,6 +135,24 @@ export default function UserDetailScreen() {
 			Alert.alert('Không thể cập nhật quyền riêng tư', message ?? 'Vui lòng thử lại sau.');
 		} finally {
 			setIsUpdatingPrivacy(false);
+		}
+	};
+
+	const handleUpdateBio = async () => {
+		if (!user || user.id !== idUser || isUpdatingBio) return;
+
+		setIsUpdatingBio(true);
+		try {
+			const response = await updateMyBio(user.id, draftBio.trim());
+			const bio = response.data.data.bio as string | null;
+			setUser((current) => current ? { ...current, bio } : current);
+			setIsBioModalVisible(false);
+			Alert.alert('Đã cập nhật', 'Phần giới thiệu của bạn đã được lưu.');
+		} catch (requestError) {
+			const message = (requestError as { response?: { data?: { message?: string } } }).response?.data?.message;
+			Alert.alert('Không thể cập nhật giới thiệu', message ?? 'Vui lòng thử lại sau.');
+		} finally {
+			setIsUpdatingBio(false);
 		}
 	};
 
@@ -251,10 +272,22 @@ export default function UserDetailScreen() {
 							</View>
 						)}
 
-						<View style={styles.bioSection}>
-							<Text style={styles.detailLabel}>Giới thiệu</Text>
+						<Pressable
+							style={styles.bioSection}
+							disabled={user.id !== idUser}
+							onPress={() => {
+								setDraftBio(user.bio ?? '');
+								setIsBioModalVisible(true);
+							}}
+							accessibilityRole={user.id === idUser ? 'button' : undefined}
+							accessibilityLabel={user.id === idUser ? 'Chỉnh sửa phần giới thiệu' : 'Phần giới thiệu'}
+						>
+							<View style={styles.bioHeader}>
+								<Text style={styles.detailLabel}>Giới thiệu</Text>
+								{user.id === idUser && <Ionicons name="create-outline" size={18} color="#0A7EA4" />}
+							</View>
 							<Text style={styles.bio}>{user.bio?.trim() || 'Người dùng chưa thêm phần giới thiệu.'}</Text>
-						</View>
+						</Pressable>
 
 						<Pressable
 							style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
@@ -319,6 +352,49 @@ export default function UserDetailScreen() {
 								accessibilityRole="button"
 							>
 								{isUpdatingPrivacy ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text style={styles.modalConfirmText}>Xác nhận</Text>}
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
+
+			<Modal
+				visible={isBioModalVisible}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsBioModalVisible(false)}
+			>
+				<View style={styles.modalOverlay}>
+					<View style={styles.modalContent}>
+						<Text style={styles.modalTitle}>Chỉnh sửa giới thiệu</Text>
+						<TextInput
+							style={styles.bioInput}
+							value={draftBio}
+							onChangeText={setDraftBio}
+							placeholder="Viết vài dòng về bạn"
+							placeholderTextColor="#8A9AA0"
+							maxLength={160}
+							multiline
+							textAlignVertical="top"
+							autoFocus
+							accessibilityLabel="Nội dung giới thiệu, tối đa 160 ký tự"
+						/>
+						<Text style={styles.bioCharacterCount}>{draftBio.length}/160</Text>
+						<View style={styles.modalActions}>
+							<Pressable
+								style={[styles.modalButton, styles.modalCancelButton]}
+								onPress={() => setIsBioModalVisible(false)}
+								disabled={isUpdatingBio}
+							>
+								<Text style={styles.modalCancelText}>Hủy</Text>
+							</Pressable>
+							<Pressable
+								style={[styles.modalButton, styles.modalConfirmButton, isUpdatingBio && styles.disabledButton]}
+								onPress={() => void handleUpdateBio()}
+								disabled={isUpdatingBio}
+								accessibilityRole="button"
+							>
+								{isUpdatingBio ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text style={styles.modalConfirmText}>Xác nhận</Text>}
 							</Pressable>
 						</View>
 					</View>
@@ -551,11 +627,31 @@ const styles = StyleSheet.create({
 		paddingTop: 18,
 		marginTop: 4,
 	},
+	bioHeader: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
 	bio: {
 		color: '#17323B',
 		fontSize: 15,
 		lineHeight: 22,
 		marginTop: 8,
+	},
+	bioInput: {
+		borderColor: '#DCE8EC',
+		borderRadius: 8,
+		borderWidth: 1,
+		color: '#17323B',
+		fontSize: 15,
+		lineHeight: 22,
+		minHeight: 120,
+		padding: 12,
+	},
+	bioCharacterCount: {
+		alignSelf: 'flex-end',
+		color: '#71858D',
+		fontSize: 12,
 	},
 	state: {
 		flex: 1,
