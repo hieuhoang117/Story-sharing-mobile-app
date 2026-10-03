@@ -28,6 +28,7 @@ type ProfileUser = {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
+    bio: string | null;
     is_private: number;
 };
 
@@ -38,7 +39,7 @@ const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
 ];
 
 export default function profile() {
-    const { idUser, bio } = useAuth();
+    const { idUser } = useAuth();
     const { userId: passedUserId } = useLocalSearchParams<{ userId?: string }>();
     const resolvedUserId = Array.isArray(passedUserId) ? passedUserId[0] : passedUserId;
     const profileUserId = resolvedUserId || idUser;
@@ -284,7 +285,7 @@ export default function profile() {
                 )}
                 <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
                     <Text style={{ color: '#52635B', fontSize: 14, textAlign: 'center' }}>
-                        {bio || (isOwnProfile ? 'Chưa có tiểu sử' : '')}
+                        {profileUser?.bio || (isOwnProfile ? 'Chưa có tiểu sử' : '')}
                     </Text>
                 </View>
             </View>

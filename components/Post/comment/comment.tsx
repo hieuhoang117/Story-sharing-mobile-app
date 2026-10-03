@@ -5,6 +5,7 @@ import {
     ActivityIndicator,
     FlatList,
     Image,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -24,6 +25,17 @@ const Comment = ({ postId }: CommentSectionProps) => {
     const insets = useSafeAreaInsets();
     const [comments, setComments] = useState<CommentType[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => setIsKeyboardVisible(true));
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setIsKeyboardVisible(false));
+
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
 
     useEffect(() => {
         let isActive = true;
@@ -101,7 +113,7 @@ const Comment = ({ postId }: CommentSectionProps) => {
                     )}
                 />
             )}
-            <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+            <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 20) + (isKeyboardVisible ? 80 : 0) }]}>
                 <InputComment postId={postId} onCommentCreated={handleCommentCreated} />
             </View>
         </KeyboardAvoidingView>
@@ -125,10 +137,6 @@ const styles = StyleSheet.create({
         paddingBottom: 150,
     },
     composer: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
         backgroundColor: '#FFFFFF',
         borderTopColor: '#E1E9E2',
         borderTopWidth: StyleSheet.hairlineWidth,
