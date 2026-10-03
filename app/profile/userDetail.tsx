@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
+const DEFAULT_AVATAR_PUBLIC_ID = 'default-avatar-icon-of-social-media-user-vector';
 
 interface UserProfile {
 	id: string;
@@ -62,7 +63,7 @@ export default function UserDetailScreen() {
 
 		setIsUpdatingAvatar(true);
 		try {
-			await updateMyAvatar(user.id, DEFAULT_AVATAR_URL);
+			await updateMyAvatar(user.id, DEFAULT_AVATAR_URL, DEFAULT_AVATAR_PUBLIC_ID);
 			setUser((current) => current ? { ...current, avatar_url: DEFAULT_AVATAR_URL } : current);
 			setavatar(DEFAULT_AVATAR_URL);
 			Alert.alert('Đã xóa ảnh đại diện', 'Avatar đã được đổi về ảnh mặc định.');
@@ -90,9 +91,11 @@ export default function UserDetailScreen() {
 			const asset = selection.assets[0];
 			const uploadResponse = await uploadpic(asset);
 			const avatarUrl = uploadResponse.data.data.url as string | undefined;
+			const publicId = uploadResponse.data.data.public_id as string | undefined;
 			if (!avatarUrl) throw new Error('Không nhận được URL ảnh từ máy chủ.');
+			if (!publicId) throw new Error('Không nhận được public_id ảnh từ máy chủ.');
 
-			await updateMyAvatar(user.id, avatarUrl);
+			await updateMyAvatar(user.id, avatarUrl, publicId);
 			setUser((current) => current ? { ...current, avatar_url: avatarUrl } : current);
 			setavatar(avatarUrl);
 			Alert.alert('Đã đổi ảnh đại diện', 'Avatar của bạn đã được cập nhật.');

@@ -14,6 +14,7 @@ const User = {
         display_name: true,
         email: true,
         avatar_url: true,
+        cloudinary_public_id: true,
         bio: true,
         is_private: true,
         is_verified: true,
@@ -21,13 +22,14 @@ const User = {
       },
     });
   },
-  updateAvatar: async (id: string, avatarUrl: string) => {
+  updateAvatar: async (id: string, avatarUrl: string, publicId: string) => {
     return await prisma.users.update({
       where: { id },
-      data: { avatar_url: avatarUrl },
+      data: { avatar_url: avatarUrl, cloudinary_public_id: publicId },
       select: {
         id: true,
         avatar_url: true,
+        cloudinary_public_id: true,
       },
     });
   },

@@ -60,7 +60,7 @@ export const checkUserExists = async (req: Request, res: Response) => {
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, display_name, avatar_url } = req.body;
+    const { name, email, password, display_name, avatar_url, public_id } = req.body;
 
     if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
       return res.status(400).json({
@@ -83,6 +83,7 @@ export const registerUser = async (req: Request, res: Response) => {
       password,
       typeof display_name === 'string' ? display_name.trim() : undefined,
       typeof avatar_url === 'string' && avatar_url.trim() ? avatar_url.trim() : undefined,
+      typeof public_id === 'string' && public_id.trim() ? public_id.trim() : undefined,
     );
     res.status(201).json({ message: 'User created', data: user });
   } catch (error) {
@@ -141,6 +142,7 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
   const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const requesterId = (req as any).user?.id as string | undefined;
   const avatarUrl = typeof req.body?.avatar_url === 'string' ? req.body.avatar_url.trim() : '';
+  const publicId = typeof req.body?.public_id === 'string' ? req.body.public_id.trim() : '';
 
   if (!requesterId) {
     return res.status(401).json({ message: 'Authentication is required' });
@@ -151,6 +153,9 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
   if (!avatarUrl) {
     return res.status(400).json({ message: 'avatar_url is required' });
   }
+  if (!publicId) {
+    return res.status(400).json({ message: 'public_id is required' });
+  }
 
   try {
     const parsedUrl = new URL(avatarUrl);
@@ -158,10 +163,14 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'avatar_url must use HTTPS' });
     }
 
-    const user = await userService.updateAvatarUrl(userId, avatarUrl);
+    const user = await userService.updateAvatar(userId, avatarUrl, publicId);
     return res.status(200).json({
       message: 'Avatar updated successfully',
-      data: user,
+      data: {
+        id: user.id,
+        avatar_url: user.avatar_url,
+        public_id: user.cloudinary_public_id,
+      },
     });
   } catch (error) {
     if (error instanceof TypeError) {

@@ -3,6 +3,7 @@ import Follow from '../models/followModel';
 import User from '../models/userModel';
 
 const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
+const DEFAULT_AVATAR_PUBLIC_ID = 'default-avatar-icon-of-social-media-user-vector';
 
 export const createUser = async (
   name: string,
@@ -10,6 +11,7 @@ export const createUser = async (
   password: string,
   displayName?: string,
   avatarUrl: string = DEFAULT_AVATAR_URL,
+  avatarPublicId?: string,
 ) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -20,6 +22,8 @@ export const createUser = async (
       email,
       password_hash: hashedPassword,
       avatar_url: avatarUrl,
+      cloudinary_public_id:
+        avatarPublicId ?? (avatarUrl === DEFAULT_AVATAR_URL ? DEFAULT_AVATAR_PUBLIC_ID : null),
     },
     select: {
       id: true,
@@ -27,6 +31,7 @@ export const createUser = async (
       display_name: true,
       email: true,
       avatar_url: true,
+      cloudinary_public_id: true,
       bio: true,
       is_private: true,
       is_verified: true,
@@ -109,8 +114,12 @@ export const getUserById = async (id: string) => {
   return await User.getById(id);
 }
 
-export const updateAvatarUrl = async (userId: string, avatarUrl: string) => {
-  return await User.updateAvatar(userId, avatarUrl);
+export const updateAvatarUrl = async (userId: string, avatarUrl: string,avartarpublicID:string) => {
+  return await User.updateAvatar(userId, avatarUrl, avartarpublicID);
+};
+
+export const updateAvatar = async (userId: string, avatarUrl: string, publicId: string) => {
+  return await User.updateAvatar(userId, avatarUrl, publicId);
 };
 
 export const getFollowersByUserId = async (userId: string) => {
