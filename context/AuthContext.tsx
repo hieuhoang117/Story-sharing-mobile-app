@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
 
 type AuthContextType = {
   isLoggedIn: boolean;
@@ -11,6 +12,7 @@ type AuthContextType = {
   setdisplayname: (value: string) => void;
   username: string;
   setusername: (value: string) => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +24,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [displayname, setdisplayname] = useState('');
   const [username, setusername] = useState('');
 
+  const logout = async () => {
+    try {
+      await SecureStore.deleteItemAsync('userToken');
+    } finally {
+      setIsLoggedIn(false);
+      setidUser('');
+      setavatar('');
+      setdisplayname('');
+      setusername('');
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       isLoggedIn, setIsLoggedIn,
@@ -29,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       avatar, setavatar,
       displayname, setdisplayname,
       username, setusername,
+      logout,
     }}>
       {children}
     </AuthContext.Provider>
