@@ -59,11 +59,13 @@ const Post = {
             },
         });
     },
-    getallpost: async () => {
+    getallpost: async (userId: string) => {
         return await prisma.posts.findMany({
             where: {
                 parent_post_id: null,
                 status: 'active',
+                visibility: 'public',
+                user_id: { not: userId },
             },
             select: {
                 id: true,

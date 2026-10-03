@@ -18,7 +18,7 @@ const router = Router();
 router.get('/postbyuser/:user_id', getpostbyuserid);
 router.get('/my/replies', verifyToken, getMyReplies);
 router.get('/my/liked-posts', verifyToken, getMyLikedPosts);
-router.get('/allPost', getAllposts);
+router.get('/allPost', verifyToken, getAllposts);
 router.get('/search', searchPosts);
 router.post('/creatPost', verifyToken, createPost); 
 router.get('/getpostpic/:post_id', getpicbypost);

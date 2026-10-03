@@ -220,7 +220,8 @@ export const getMyLikedPosts = async (req: Request, res: Response) => {
 
 export const getAllposts = async (req: Request, res: Response) => {
     try {
-        const postdata = await post.getallpost();
+        const userId = (req as any).user.id as string;
+        const postdata = await post.getallpost(userId);
 
         if (!postdata || postdata.length == 0) {
             return res.status(404).json({ message: 'Post not found' });

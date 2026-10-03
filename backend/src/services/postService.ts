@@ -23,8 +23,8 @@ export const getRepliesByUserId = async (user_id: string) => {
 export const getLikedPostsByUserId = async (user_id: string) => {
   return await Post.getLikedPostsByUserId(user_id);
 };
-export const getallpost = async () => {
-  return await Post.getallpost();
+export const getallpost = async (userId: string) => {
+  return await Post.getallpost(userId);
 };
 export const searchPosts = async (keyword: string) => {
   return await Post.searchPosts(keyword);
