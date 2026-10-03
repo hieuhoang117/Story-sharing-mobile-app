@@ -31,16 +31,47 @@ export const sendOtp = async (req: Request, res: Response) => {
 export const verifyOtp = (req: Request, res: Response) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
   const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
+  const purpose = req.body.purpose;
 
   if (!email || !EMAIL_PATTERN.test(email) || !/^\d{6}$/.test(code)) {
     return res.status(400).json({ message: 'A valid email and 6-digit code are required' });
   }
+  if (purpose !== undefined && purpose !== 'password-reset') {
+    return res.status(400).json({ message: 'Invalid verification purpose' });
+  }
 
-  if (!otpService.verifyOtp(email, code)) {
+  if (!otpService.verifyOtp(email, code, purpose !== 'password-reset')) {
     return res.status(400).json({ message: 'OTP is invalid or expired' });
   }
 
-  return res.status(200).json({ message: 'Email verified successfully' });
+  return res.status(200).json({ message: purpose === 'password-reset' ? 'Reset code verified' : 'Email verified successfully' });
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
+  const newPassword = typeof req.body?.newPassword === 'string' ? req.body.newPassword : '';
+
+  if (!email || !EMAIL_PATTERN.test(email) || !/^\d{6}$/.test(code)) {
+    return res.status(400).json({ message: 'A valid email and 6-digit code are required' });
+  }
+  if (newPassword.length < 8 || newPassword.length > 13) {
+    return res.status(400).json({ message: 'Password must be 8 to 13 characters long' });
+  }
+
+  if (!otpService.verifyOtp(email, code)) {
+    return res.status(400).json({ message: 'Reset code is invalid or expired' });
+  }
+
+  try {
+    await userService.changePasswordByEmail(email, newPassword);
+    return res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      return res.status(400).json({ message: 'Reset code is invalid or expired' });
+    }
+    return res.status(500).json({ message: 'Failed to reset password', error });
+  }
 };
 
 export const checkUserExists = async (req: Request, res: Response) => {

@@ -1,4 +1,4 @@
-import { getNotificationsByUserId } from '@/services/api';
+import api, { getNotificationsByUserId } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -116,16 +116,39 @@ export default function NotificationScreen() {
 			setRefreshing(false);
 		}
 	};
+	const markNotificationAsRead = async (notificationId: string) => {
+		try {
+			await api.patch(`/notifications/${notificationId}/read`);
+			setNotifications((prevNotifications) =>
+				prevNotifications.map((notification) =>
+					notification.id === notificationId ? { ...notification, is_read: 1 } : notification,
+				),
+			);
+		} catch (error) {
+			console.error('Đánh dấu thông báo là đã đọc thất bại:', error);
+		}
+	};
 
 	const openNotification = (notification: NotificationItem) => {
 		const post = notification.posts;
 		if (!post) return;
+		markNotificationAsRead(notification.id);
 
 		router.push({
 			pathname: '/main_screen/postdetail',
 			params: { postid: post.id, userid: post.user_id },
 		});
 	};
+
+	const ifanyUnread = notifications.some((notification) => notification.is_read === 0);
+	useEffect(() => {
+		if (ifanyUnread) {
+			const unreadNotifications = notifications.filter((notification) => notification.is_read === 0);
+			unreadNotifications.forEach((notification) => {
+				void markNotificationAsRead(notification.id);
+			});
+		}
+	}, [notifications]);
 
 	return (
 		<View style={styles.screen}>

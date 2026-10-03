@@ -53,7 +53,7 @@ export const sendOtp = async (email: string) => {
   lastSentAt.set(normalizedEmail, now);
 };
 
-export const verifyOtp = (email: string, code: string) => {
+export const verifyOtp = (email: string, code: string, consume = true) => {
   const normalizedEmail = email.trim().toLowerCase();
   const storedOtp = otpStore.get(normalizedEmail);
 
@@ -72,7 +72,9 @@ export const verifyOtp = (email: string, code: string) => {
     return false;
   }
 
-  otpStore.delete(normalizedEmail);
-  lastSentAt.delete(normalizedEmail);
+  if (consume) {
+    otpStore.delete(normalizedEmail);
+    lastSentAt.delete(normalizedEmail);
+  }
   return true;
 };

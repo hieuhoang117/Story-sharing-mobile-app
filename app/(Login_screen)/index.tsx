@@ -51,7 +51,7 @@ export default function LoginScreen() {
       <Pressable style={stylebutton.button} onPress={handleLogin}>
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Đăng nhập</Text>
       </Pressable>
-      <Pressable onPress={() => router.push('/')}>
+      <Pressable onPress={() => router.push('/forgetPass')}>
         <Text style={{ color: '#007bff', marginTop: 10 }}>Quên mật khẩu?</Text>
       </Pressable>
     </View>

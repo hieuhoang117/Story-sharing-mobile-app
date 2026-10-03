@@ -4,6 +4,7 @@ export default function LoginLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" ></Stack.Screen>
+      <Stack.Screen name="forgetPass" />
       <Stack.Screen
         name="signin"
         options={{

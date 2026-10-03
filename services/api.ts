@@ -16,6 +16,15 @@ api.interceptors.request.use(async (config) => {
 export const login = (email: string, password: string) => {
   return api.post('/users/login', { email, password });
 };
+export const sendOtp = (email: string) => {
+  return api.post('/users/send-otp', { email });
+};
+export const verifyOtp = (email: string, code: string, purpose?: 'password-reset') => {
+  return api.post('/users/verify-otp', { email, code, ...(purpose ? { purpose } : {}) });
+};
+export const resetPassword = (email: string, code: string, newPassword: string) => {
+  return api.post('/users/reset-password', { email, code, newPassword });
+};
 export const checkUserExists = (params: { email?: string; username?: string }) => {
   return api.get('/users/check-exists', { params });
 };

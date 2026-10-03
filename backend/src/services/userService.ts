@@ -45,6 +45,15 @@ export const getUserByEmail = async (email: string) => {
   });
 }
 
+export const changePasswordByEmail = async (email: string, newPassword: string) => {
+  const password_hash = await bcrypt.hash(newPassword, 10);
+  return User.update({
+    where: { email: email.trim().toLowerCase() },
+    data: { password_hash },
+    select: { id: true },
+  });
+};
+
 export const checkExists = async (email?: string, username?: string) => {
   const cleanEmail = email?.trim().toLowerCase();
   const cleanUsername = username?.trim();
