@@ -25,6 +25,9 @@ export const getUserById = (id: string) => {
 export const updateMyPrivacy = (userId: string, isPrivate: 0 | 1) => {
   return api.patch(`/users/${userId}/privacy`, { is_private: isPrivate });
 };
+export const updateMyBio = (userId: string, bio: string) => {
+  return api.patch(`/users/${userId}/bio`, { bio });
+};
 export const getNotificationsByUserId = (userId: string, limit = 50) => {
   return api.get(`/notifications/${userId}`, { params: { limit } });
 };

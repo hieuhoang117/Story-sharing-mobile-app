@@ -3,7 +3,6 @@ import { deleteImage, getUserById, updateMyAvatar, updateMyPrivacy, uploadpic } 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { Button } from 'expo-router/react-navigation';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -25,7 +24,7 @@ interface UserProfile {
 }
 
 export default function UserDetailScreen() {
-	const { idUser, setavatar,logout } = useAuth();
+	const { idUser, setavatar, logout } = useAuth();
 	const { userId: routeUserId } = useLocalSearchParams<{ userId?: string }>();
 	const userId = (Array.isArray(routeUserId) ? routeUserId[0] : routeUserId) || idUser;
 	const [user, setUser] = useState<UserProfile | null>(null);
@@ -145,8 +144,6 @@ export default function UserDetailScreen() {
 		<View style={styles.screen}>
 			<Stack.Screen options={{ title: 'Chi tiết hồ sơ', headerBackButtonDisplayMode: 'minimal' }} />
 
-			<Button onPress={logout}>Đăng xuất</Button>
-
 			{!userId ? (
 				<View style={styles.state}>
 					<Text style={styles.stateText}>Không tìm thấy người dùng.</Text>
@@ -258,6 +255,17 @@ export default function UserDetailScreen() {
 							<Text style={styles.detailLabel}>Giới thiệu</Text>
 							<Text style={styles.bio}>{user.bio?.trim() || 'Người dùng chưa thêm phần giới thiệu.'}</Text>
 						</View>
+
+						<Pressable
+							style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
+							onPress={() => void logout()}
+							accessibilityRole="button"
+							accessibilityLabel="Đăng xuất"
+						>
+							<Ionicons name="log-out-outline" size={18} color="#A63C34" />
+							<Text style={styles.logoutButtonText}>Đăng xuất</Text>
+						</Pressable>
+
 					</View>
 				</ScrollView>
 			)}
@@ -324,6 +332,28 @@ const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
 		backgroundColor: '#F4F8FA',
+	},
+	logoutButton: {
+		alignItems: 'center',
+		alignSelf: 'flex-start',
+		backgroundColor: '#FBEDEC',
+		borderColor: '#E8C5C1',
+		borderRadius: 8,
+		borderWidth: 1,
+		flexDirection: 'row',
+		gap: 8,
+		marginRight: 20,
+		marginTop: 20,
+		minHeight: 42,
+		paddingHorizontal: 14,
+	},
+	logoutButtonPressed: {
+		opacity: 0.7,
+	},
+	logoutButtonText: {
+		color: '#A63C34',
+		fontSize: 14,
+		fontWeight: '700',
 	},
 	content: {
 		paddingHorizontal: 20,

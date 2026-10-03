@@ -212,6 +212,37 @@ export const updateUserPrivacy = async (req: Request, res: Response) => {
   }
 };
 
+export const updateUserBio = async (req: Request, res: Response) => {
+  const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const requesterId = (req as any).user?.id as string | undefined;
+  const requestedBio = req.body?.bio;
+
+  if (!requesterId) {
+    return res.status(401).json({ message: 'Authentication is required' });
+  }
+  if (requesterId !== userId) {
+    return res.status(403).json({ message: 'You can only update your own bio' });
+  }
+  if (typeof requestedBio !== 'string') {
+    return res.status(400).json({ message: 'bio must be a string' });
+  }
+
+  const normalizedBio = requestedBio.trim();
+  if (normalizedBio.length > 160) {
+    return res.status(400).json({ message: 'bio must not exceed 160 characters' });
+  }
+
+  try {
+    const user = await userService.updateBio(userId, normalizedBio || null);
+    return res.status(200).json({ message: 'Bio updated successfully', data: user });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(500).json({ message: 'Failed to update bio', error });
+  }
+};
+
 export const getFollowersByUserId = async (req: Request, res: Response) => {
   try {
     const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

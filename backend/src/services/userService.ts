@@ -126,6 +126,10 @@ export const updatePrivacy = async (userId: string, isPrivate: 0 | 1) => {
   return await User.updatePrivacy(userId, isPrivate);
 };
 
+export const updateBio = async (userId: string, bio: string | null) => {
+  return await User.updateBio(userId, bio);
+};
+
 export const getFollowersByUserId = async (userId: string) => {
   const follows = await Follow.findMany({
     where: { following_id: userId, status: 'accepted' },

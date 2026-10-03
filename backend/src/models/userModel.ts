@@ -44,6 +44,16 @@ const User = {
       },
     });
   },
+  updateBio: async (id: string, bio: string | null) => {
+    return await prisma.users.update({
+      where: { id },
+      data: { bio },
+      select: {
+        id: true,
+        bio: true,
+      },
+    });
+  },
   findByEmailOrUsername: async (email?: string, username?: string) => {
     const conditions = [];
     if (email) conditions.push({ email });
