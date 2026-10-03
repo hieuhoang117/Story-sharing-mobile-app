@@ -1,5 +1,44 @@
 import { Request, Response } from 'express';
 import * as notificationService from '../services/notificationService';
+import * as postService from '../services/postService';
+import * as userService from '../services/userService';
+
+export const createNotification = async (req: Request, res: Response) => {
+  try {
+    const body = req.body ?? {};
+    const userId = typeof body.user_id === 'string' ? body.user_id.trim() : '';
+    const type = body.type;
+    const postId = body.post_id;
+
+    if (!userId || typeof type !== 'string' || !notificationService.notificationTypes.includes(type as notificationService.NotificationType)) {
+      return res.status(400).json({ message: 'user_id and a valid type are required' });
+    }
+    if (postId !== undefined && postId !== null && (typeof postId !== 'string' || !postId.trim())) {
+      return res.status(400).json({ message: 'post_id must be a non-empty string' });
+    }
+
+    const recipient = await userService.getUserById(userId);
+    if (!recipient) {
+      return res.status(404).json({ message: 'Notification recipient not found' });
+    }
+
+    const normalizedPostId = typeof postId === 'string' ? postId.trim() : undefined;
+    if (normalizedPostId && !(await postService.getPostById(normalizedPostId))) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const notification = await notificationService.createNotification({
+      user_id: userId,
+      actor_id: (req as any).user.id as string,
+      type: type as notificationService.NotificationType,
+      post_id: normalizedPostId,
+    });
+
+    return res.status(201).json({ data: notification });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error creating notification', error });
+  }
+};
 
 export const getNotificationsByUserId = async (req: Request, res: Response) => {
   try {
