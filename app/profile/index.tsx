@@ -53,6 +53,7 @@ export default function profile() {
     const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
     const [postsLoading, setPostsLoading] = useState(false);
     const [postsError, setPostsError] = useState(false);
+    const [accountStatus, setAccountStatus] = useState<'active' | 'suspended' | 'banned' | null>(null);
     const displayedTab: ProfileTab = isOwnProfile || activeTab === 'replies' ? activeTab : 'posts';
     const visibleTabs = PROFILE_TABS.filter((tab) => isOwnProfile || tab.key !== 'liked');
 
@@ -62,9 +63,13 @@ export default function profile() {
         let isActive = true;
         setProfileUserLoading(true);
         setProfileUser(null);
+        setAccountStatus(null);
         getUserById(profileUserId)
             .then((response) => {
-                if (isActive) setProfileUser(response.data.data);
+                if (isActive) {
+                    setProfileUser(response.data.data);
+                    setAccountStatus(response.data.data.status);
+                }
             })
             .catch((error) => {
                 if (isActive) setProfileUser(null);
@@ -81,6 +86,11 @@ export default function profile() {
 
     useEffect(() => {
         if (!profileUserId) return;
+        if (accountStatus !== 'active') {
+            setFollowers([]);
+            setFollowing([]);
+            return;
+        }
 
         let isActive = true;
         const fetchFollowCounts = async () => {
@@ -110,7 +120,7 @@ export default function profile() {
         return () => {
             isActive = false;
         };
-    }, [profileUserId]);
+    }, [accountStatus, profileUserId]);
 
     useEffect(() => {
         if (!profileUserId) return;

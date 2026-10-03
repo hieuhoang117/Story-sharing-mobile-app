@@ -122,6 +122,10 @@ export const updateAvatar = async (userId: string, avatarUrl: string, publicId: 
   return await User.updateAvatar(userId, avatarUrl, publicId);
 };
 
+export const updatePrivacy = async (userId: string, isPrivate: 0 | 1) => {
+  return await User.updatePrivacy(userId, isPrivate);
+};
+
 export const getFollowersByUserId = async (userId: string) => {
   const follows = await Follow.findMany({
     where: { following_id: userId, status: 'accepted' },

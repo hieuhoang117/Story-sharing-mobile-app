@@ -183,6 +183,35 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
   }
 };
 
+export const updateUserPrivacy = async (req: Request, res: Response) => {
+  const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const requesterId = (req as any).user?.id as string | undefined;
+  const requestedValue = req.body?.is_private;
+
+  if (!requesterId) {
+    return res.status(401).json({ message: 'Authentication is required' });
+  }
+  if (requesterId !== userId) {
+    return res.status(403).json({ message: 'You can only update your own privacy setting' });
+  }
+  if (requestedValue !== 0 && requestedValue !== 1) {
+    return res.status(400).json({ message: 'is_private must be 0 or 1' });
+  }
+
+  try {
+    const user = await userService.updatePrivacy(userId, requestedValue);
+    return res.status(200).json({
+      message: 'Account privacy updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(500).json({ message: 'Failed to update account privacy', error });
+  }
+};
+
 export const getFollowersByUserId = async (req: Request, res: Response) => {
   try {
     const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

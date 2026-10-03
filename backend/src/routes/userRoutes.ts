@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkUserExists, followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, updateUserAvatar, verifyOtp } from '../controllers/userController';
+import { checkUserExists, followUser, getFollowersByUserId, getFollowingByUserId, getUserById, getUsers, loginUser, registerUser, searchUsers, sendOtp, unfollowUser, updateUserAvatar, updateUserPrivacy, verifyOtp } from '../controllers/userController';
 import { verifyToken } from '../middlewares/authMiddleware';
 
 const router = Router();
@@ -17,6 +17,7 @@ router.get('/:id/following', verifyToken, getFollowingByUserId);
 router.post('/:id/follow', verifyToken, followUser);
 router.delete('/:id/follow', verifyToken, unfollowUser);
 router.put('/:id/avatar', verifyToken, updateUserAvatar);
+router.patch('/:id/privacy', verifyToken, updateUserPrivacy);
 router.get('/:id', verifyToken, getUserById);
 
 export default router;

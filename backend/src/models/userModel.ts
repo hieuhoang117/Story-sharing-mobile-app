@@ -34,6 +34,16 @@ const User = {
       },
     });
   },
+  updatePrivacy: async (id: string, isPrivate: 0 | 1) => {
+    return await prisma.users.update({
+      where: { id },
+      data: { is_private: isPrivate },
+      select: {
+        id: true,
+        is_private: true,
+      },
+    });
+  },
   findByEmailOrUsername: async (email?: string, username?: string) => {
     const conditions = [];
     if (email) conditions.push({ email });

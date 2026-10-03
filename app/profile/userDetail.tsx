@@ -1,10 +1,10 @@
 import { useAuth } from '@/context/AuthContext';
-import { deleteImage, getUserById, updateMyAvatar, uploadpic } from '@/services/api';
+import { deleteImage, getUserById, updateMyAvatar, updateMyPrivacy, uploadpic } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const DEFAULT_AVATAR_URL = 'https://res.cloudinary.com/nn8w7oql/image/upload/v1790862346/default-avatar-icon-of-social-media-user-vector.jpg';
 const DEFAULT_AVATAR_PUBLIC_ID = 'default-avatar-icon-of-social-media-user-vector';
@@ -15,6 +15,8 @@ interface UserProfile {
 	display_name: string | null;
 	email?: string;
 	avatar_url: string | null;
+	cloudinary_public_id: string | null;
+	status: boolean;
 	bio: string | null;
 	is_private: number;
 	is_verified: number;
@@ -31,6 +33,9 @@ export default function UserDetailScreen() {
 	const [error, setError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
+	const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
+	const [selectedIsPrivate, setSelectedIsPrivate] = useState<0 | 1>(0);
+	const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -109,6 +114,24 @@ export default function UserDetailScreen() {
 			Alert.alert('Không thể đổi avatar', message ?? 'Vui lòng thử lại sau.');
 		} finally {
 			setIsUpdatingAvatar(false);
+		}
+	};
+
+	const handleUpdatePrivacy = async () => {
+		if (!user || user.id !== idUser || isUpdatingPrivacy) return;
+
+		setIsUpdatingPrivacy(true);
+		try {
+			const response = await updateMyPrivacy(user.id, selectedIsPrivate);
+			const isPrivate = response.data.data.is_private as 0 | 1;
+			setUser((current) => current ? { ...current, is_private: isPrivate } : current);
+			setIsPrivacyModalVisible(false);
+			Alert.alert('Đã cập nhật', isPrivate ? 'Tài khoản hiện ở chế độ riêng tư.' : 'Tài khoản hiện ở chế độ công khai.');
+		} catch (requestError) {
+			const message = (requestError as { response?: { data?: { message?: string } } }).response?.data?.message;
+			Alert.alert('Không thể cập nhật quyền riêng tư', message ?? 'Vui lòng thử lại sau.');
+		} finally {
+			setIsUpdatingPrivacy(false);
 		}
 	};
 
@@ -196,6 +219,18 @@ export default function UserDetailScreen() {
 								<Text style={styles.detailLabel}>Quyền riêng tư</Text>
 								<Text style={styles.detailValue}>{user.is_private ? 'Tài khoản riêng tư' : 'Tài khoản công khai'}</Text>
 							</View>
+							{user.id === idUser && (
+								<Pressable
+									style={styles.privacyEditButton}
+									onPress={() => {
+										setSelectedIsPrivate(user.is_private ? 1 : 0);
+										setIsPrivacyModalVisible(true);
+									}}
+									accessibilityRole="button"
+								>
+									<Text style={styles.privacyEditText}>Thay đổi</Text>
+								</Pressable>
+							)}
 						</View>
 
 						<View style={styles.detailRow}>
@@ -223,6 +258,61 @@ export default function UserDetailScreen() {
 					</View>
 				</ScrollView>
 			)}
+
+			<Modal
+				visible={isPrivacyModalVisible}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsPrivacyModalVisible(false)}
+			>
+				<View style={styles.modalOverlay}>
+					<View style={styles.modalContent}>
+						<Text style={styles.modalTitle}>Quyền riêng tư tài khoản</Text>
+						{([0, 1] as const).map((value) => {
+							const isSelected = selectedIsPrivate === value;
+							return (
+								<Pressable
+									key={value}
+									style={[styles.privacyOption, isSelected && styles.privacyOptionSelected]}
+									onPress={() => setSelectedIsPrivate(value)}
+									accessibilityRole="radio"
+									accessibilityState={{ selected: isSelected }}
+								>
+									<Ionicons
+										name={value === 1 ? 'lock-closed-outline' : 'earth-outline'}
+										size={20}
+										color={isSelected ? '#0A7EA4' : '#71858D'}
+									/>
+									<View style={styles.privacyOptionText}>
+										<Text style={styles.privacyOptionTitle}>{value === 1 ? 'Riêng tư' : 'Công khai'}</Text>
+										<Text style={styles.privacyOptionDescription}>
+											{value === 1 ? 'Chỉ người theo dõi được chấp thuận mới xem nội dung.' : 'Mọi người có thể xem hồ sơ và bài đăng công khai.'}
+										</Text>
+									</View>
+									<Ionicons name={isSelected ? 'radio-button-on' : 'radio-button-off'} size={20} color="#0A7EA4" />
+								</Pressable>
+							);
+						})}
+						<View style={styles.modalActions}>
+							<Pressable
+								style={[styles.modalButton, styles.modalCancelButton]}
+								onPress={() => setIsPrivacyModalVisible(false)}
+								disabled={isUpdatingPrivacy}
+							>
+								<Text style={styles.modalCancelText}>Hủy</Text>
+							</Pressable>
+							<Pressable
+								style={[styles.modalButton, styles.modalConfirmButton, isUpdatingPrivacy && styles.disabledButton]}
+								onPress={() => void handleUpdatePrivacy()}
+								disabled={isUpdatingPrivacy}
+								accessibilityRole="button"
+							>
+								{isUpdatingPrivacy ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text style={styles.modalConfirmText}>Xác nhận</Text>}
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
 		</View>
 	);
 }
@@ -280,6 +370,100 @@ const styles = StyleSheet.create({
 	changeAvatarText: {
 		color: '#FFFFFF',
 		fontSize: 13,
+		fontWeight: '700',
+	},
+	privacyEditButton: {
+		alignItems: 'center',
+		backgroundColor: '#E7F3F6',
+		borderRadius: 6,
+		justifyContent: 'center',
+		minHeight: 38,
+		paddingHorizontal: 12,
+	},
+	privacyEditText: {
+		color: '#0A7EA4',
+		fontSize: 13,
+		fontWeight: '700',
+	},
+	modalOverlay: {
+		flex: 1,
+		alignItems: 'center',
+		backgroundColor: 'rgba(12, 31, 37, 0.48)',
+		justifyContent: 'center',
+		padding: 24,
+	},
+	modalContent: {
+		alignSelf: 'center',
+		backgroundColor: '#FFFFFF',
+		borderRadius: 10,
+		gap: 12,
+		maxWidth: 480,
+		padding: 20,
+		width: '100%',
+	},
+	modalTitle: {
+		color: '#17323B',
+		fontSize: 18,
+		fontWeight: '700',
+		marginBottom: 4,
+	},
+	privacyOption: {
+		alignItems: 'center',
+		borderColor: '#DCE8EC',
+		borderRadius: 8,
+		borderWidth: 1,
+		flexDirection: 'row',
+		gap: 12,
+		minHeight: 68,
+		padding: 12,
+	},
+	privacyOptionSelected: {
+		backgroundColor: '#F1F8FA',
+		borderColor: '#0A7EA4',
+	},
+	privacyOptionText: {
+		flex: 1,
+		gap: 3,
+		minWidth: 0,
+	},
+	privacyOptionTitle: {
+		color: '#17323B',
+		fontSize: 14,
+		fontWeight: '700',
+	},
+	privacyOptionDescription: {
+		color: '#71858D',
+		fontSize: 12,
+		lineHeight: 17,
+	},
+	modalActions: {
+		flexDirection: 'row',
+		gap: 10,
+		justifyContent: 'flex-end',
+		marginTop: 8,
+	},
+	modalButton: {
+		alignItems: 'center',
+		borderRadius: 7,
+		justifyContent: 'center',
+		minHeight: 42,
+		minWidth: 92,
+		paddingHorizontal: 14,
+	},
+	modalCancelButton: {
+		backgroundColor: '#EEF3F5',
+	},
+	modalConfirmButton: {
+		backgroundColor: '#0A7EA4',
+	},
+	modalCancelText: {
+		color: '#536B74',
+		fontSize: 14,
+		fontWeight: '600',
+	},
+	modalConfirmText: {
+		color: '#FFFFFF',
+		fontSize: 14,
 		fontWeight: '700',
 	},
 	disabledButton: {

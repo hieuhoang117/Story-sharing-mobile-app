@@ -22,6 +22,9 @@ export const checkUserExists = (params: { email?: string; username?: string }) =
 export const getUserById = (id: string) => {
   return api.get(`/users/${id}`);
 };
+export const updateMyPrivacy = (userId: string, isPrivate: 0 | 1) => {
+  return api.patch(`/users/${userId}/privacy`, { is_private: isPrivate });
+};
 export const getNotificationsByUserId = (userId: string, limit = 50) => {
   return api.get(`/notifications/${userId}`, { params: { limit } });
 };
