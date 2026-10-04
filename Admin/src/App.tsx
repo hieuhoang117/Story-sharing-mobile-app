@@ -125,10 +125,6 @@ function App() {
           </Header>
 
           <Content className="admin-content">
-            <div className="page-heading">
-              <Text className="page-overline">KHÔNG GIAN LÀM VIỆC</Text>
-              <Title level={2} className="page-title">{pageTitles[activePage]}</Title>
-            </div>
             <section className="page-canvas" aria-label={pageTitles[activePage]} >
               {pageComponents[activePage]}
             </section>

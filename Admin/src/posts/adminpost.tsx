@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../contextAdmin/AuthContext'
 import DetailPost, { type AdminPostDetailData } from './detailpost'
+import SearchAdminPost, { type FindPostParams } from './searchadminpost'
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace(/\/$/, '')
 
@@ -19,6 +20,12 @@ type UpdatePostStatusResponse = {
   message?: string
 }
 
+const requestAdminPosts = (token: string, params: FindPostParams = {}) =>
+  axios.get<AdminPostsResponse>(`${API_BASE_URL}/admin/posts/findpost`, {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  })
+
 export default function AdminPost() {
   const { token } = useAuth()
   const [posts, setPosts] = useState<AdminPostRow[]>([])
@@ -26,6 +33,28 @@ export default function AdminPost() {
   const [errorMessage, setErrorMessage] = useState('')
   const [selectedPost, setSelectedPost] = useState<AdminPostRow | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+
+  const handleSearch = async (params: FindPostParams) => {
+    if (!token) {
+      setErrorMessage('Vui lòng đăng nhập lại để xem bài viết.')
+      return
+    }
+
+    setLoading(true)
+    setErrorMessage('')
+    try {
+      const response = await requestAdminPosts(token, params)
+      setPosts(response.data.data ?? [])
+    } catch (error) {
+      setErrorMessage(
+        axios.isAxiosError<AdminPostsResponse>(error)
+          ? error.response?.data?.message ?? 'Không thể tìm bài viết.'
+          : 'Không thể tìm bài viết.',
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSave = async (post: AdminPostRow) => {
     if (!token) return
@@ -141,9 +170,7 @@ export default function AdminPost() {
       }
 
       try {
-        const response = await axios.get<AdminPostsResponse>(`${API_BASE_URL}/admin/posts/findpost`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const response = await requestAdminPosts(token)
         if (isMounted) setPosts(response.data.data ?? [])
       } catch (error) {
         if (!isMounted) return
@@ -167,6 +194,7 @@ export default function AdminPost() {
 
   return (
     <>
+      <SearchAdminPost onSearch={handleSearch} loading={loading} />
       <Table<AdminPostRow>
         rowKey="id"
         columns={columns}
