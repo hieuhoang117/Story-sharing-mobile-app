@@ -9,6 +9,7 @@ import type { MenuProps } from 'antd'
 import { Avatar, Button, ConfigProvider, Layout, Menu, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom"
+import AdminAnalysis from './annalys/analys'
 import './App.css'
 import AdminPost from './posts/adminpost'
 import AdminReport from './reports/adminrepost'
@@ -17,25 +18,29 @@ import AdminUser from './users/adminuser'
 
 
 const { Sider, Header, Content } = Layout
-const { Text} = Typography
+const { Text } = Typography
 
-type AdminPage = 'reports' | 'posts' | 'users'
+type AdminPage = 'reports' | 'posts' | 'users' | 'annalys'
 
 const menuItems: MenuProps['items'] = [
   { key: 'reports', icon: <WarningOutlined />, label: 'Quản lý vi phạm' },
   { key: 'posts', icon: <FileTextOutlined />, label: 'Quản lý bài đăng' },
   { key: 'users', icon: <TeamOutlined />, label: 'Quản lý người dùng' },
+  { key: 'annalys', icon: <FileTextOutlined />, label: 'Phân tích dữ liệu' }
 ]
 
 const pageTitles: Record<AdminPage, string> = {
   reports: 'Quản lý vi phạm',
   posts: 'Quản lý bài đăng',
   users: 'Quản lý người dùng',
+  annalys: 'Phân tích dữ liệu'
+
 }
 const pageComponents: Record<AdminPage, React.ReactNode> = {
   reports: <AdminReport />,
   posts: <AdminPost />,
   users: <AdminUser />,
+  annalys: <AdminAnalysis />
 }
 
 function App() {
@@ -101,7 +106,9 @@ function App() {
               </div>
             )}
           </div>
-          <Button onClick={() => navigate('/login')}>Đăng xuất</Button>
+          <Button className="logout-button" onClick={() => navigate('/login')}>
+            Đăng xuất
+          </Button>
         </Sider>
 
         <Layout className="admin-main">
