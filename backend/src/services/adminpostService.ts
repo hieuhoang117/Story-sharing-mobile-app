@@ -63,7 +63,10 @@ export const findAdminPosts = async (filters: AdminPostSearchFilters) => {
 
 	return prisma.posts.findMany({
 		where,
-		include: { users: { select: { id: true, username: true } } },
+		include: {
+			users: { select: { id: true, username: true, email: true } },
+			media: { select: { url: true } },
+		},
 		orderBy: { created_at: 'desc' },
 	});
 };
