@@ -370,6 +370,7 @@ export const loginUser = async (req: Request, res: Response) => {
     console.log('Email:', email);
 
     const user = await userService.loginUser(email, password);
+    const { password_hash: _passwordHash, ...userInfo } = user;
 
     // Tạo token ngay tại đây, sau khi đã có "user" và trong phạm vi có "res"
     const token = jwt.sign(
@@ -380,7 +381,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Login successful',
-      data: { ...user, token },
+      data: { ...userInfo, token },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
