@@ -17,14 +17,14 @@ import AdminUser from './users/adminuser'
 
 
 const { Sider, Header, Content } = Layout
-const { Text, Title } = Typography
+const { Text} = Typography
 
 type AdminPage = 'reports' | 'posts' | 'users'
 
 const menuItems: MenuProps['items'] = [
-  { key: 'reports', icon: <WarningOutlined />, label: 'Quản lý vi phạm', title: 'Quản lý vi phạm' },
-  { key: 'posts', icon: <FileTextOutlined />, label: 'Quản lý bài đăng', title: 'Quản lý bài đăng' },
-  { key: 'users', icon: <TeamOutlined />, label: 'Quản lý người dùng', title: 'Quản lý người dùng' },
+  { key: 'reports', icon: <WarningOutlined />, label: 'Quản lý vi phạm' },
+  { key: 'posts', icon: <FileTextOutlined />, label: 'Quản lý bài đăng' },
+  { key: 'users', icon: <TeamOutlined />, label: 'Quản lý người dùng' },
 ]
 
 const pageTitles: Record<AdminPage, string> = {
