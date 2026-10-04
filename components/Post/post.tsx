@@ -1,4 +1,4 @@
-import { deletePost, getCommentsByPost, getpicbypost, getpostById, updatePostVisibility, type PostVisibility } from '@/services/postapi';
+import { getCommentsByPost, getpicbypost, getpostById, removePost, updatePostVisibility, type PostVisibility } from '@/services/postapi';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -88,23 +88,23 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
 
     const confirmDeletePost = () => {
         Alert.alert(
-            'Xóa bài viết?',
-            'Bài viết sẽ bị xóa và không thể khôi phục.',
+            'Gỡ bài viết?',
+            'Bài viết sẽ được chuyển sang trạng thái removed.',
             [
                 { text: 'Hủy', style: 'cancel' },
                 {
-                    text: 'Xóa bài viết',
+                    text: 'Gỡ bài viết',
                     style: 'destructive',
                     onPress: async () => {
                         setDeletingPost(true);
                         try {
-                            await deletePost(postId);
+                            await removePost(postId);
                             setVisibilityPickerVisible(false);
                             if (onDeleted) onDeleted();
                             else router.back();
                         } catch (error) {
-                            console.error('Xóa bài viết thất bại:', error);
-                            Alert.alert('Không thể xóa', 'Vui lòng thử lại sau.');
+                            console.error('Gỡ bài viết thất bại:', error);
+                            Alert.alert('Không thể gỡ bài viết', 'Vui lòng thử lại sau.');
                         } finally {
                             setDeletingPost(false);
                         }

@@ -39,8 +39,8 @@ export const createPost = (content: string, visibility: PostVisibility = 'public
 export const updatePostVisibility = (postId: string, visibility: PostVisibility) => {
   return api.patch(`/posts/${postId}/visibility`, { visibility });
 };
-export const deletePost = (postId: string) => {
-  return api.delete(`/posts/${postId}`);
+export const removePost = (postId: string) => {
+  return api.patch(`/posts/${postId}/status`, { status: 'removed' });
 };
 
 export const uploadPostImage = (postId: string, image: ImagePickerAsset) => {

@@ -10,8 +10,8 @@ export const getPostById = async (id: string) => {
 export const updatePostVisibility = async (id: string, visibility: PostVisibility) => {
   return await Post.updateVisibility(id, visibility);
 };
-export const deletePost = async (id: string) => {
-  return await Post.delete(id);
+export const updatePostStatus = async (id: string, status: 'active' | 'hidden' | 'removed') => {
+  return await Post.updateStatus(id, status);
 };
 
 export const getPostByUserId = async (user_id: string) => {

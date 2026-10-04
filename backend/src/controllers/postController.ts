@@ -85,7 +85,7 @@ export const getPostById = async (req: Request, res: Response) => {
         }
     };
 
-    export const deletePost = async (req: Request, res: Response) => {
+    export const removePost = async (req: Request, res: Response) => {
         try {
             const { post_id } = req.params;
             const postId = Array.isArray(post_id) ? post_id[0] : post_id;
@@ -100,13 +100,13 @@ export const getPostById = async (req: Request, res: Response) => {
 
             const userId = (req as any).user.id as string;
             if (postData.user_id !== userId) {
-                return res.status(403).json({ message: 'Only the post owner can delete this post' });
+                return res.status(403).json({ message: 'Only the post owner can remove this post' });
             }
 
-            await post.deletePost(postId);
-            return res.status(204).send();
+            const updatedPost = await post.updatePostStatus(postId, 'removed');
+            return res.status(200).json({ message: 'Post marked as removed', data: updatedPost });
         } catch (error) {
-            return res.status(500).json({ message: 'Error deleting post', error });
+            return res.status(500).json({ message: 'Error removing post', error });
         }
     };
 
