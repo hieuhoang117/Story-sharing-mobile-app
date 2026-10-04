@@ -8,7 +8,13 @@ import {
 import type { MenuProps } from 'antd'
 import { Avatar, Button, ConfigProvider, Layout, Menu, Typography } from 'antd'
 import { useState } from 'react'
+import { useNavigate } from "react-router-dom"
 import './App.css'
+import AdminPost from './posts/adminpost'
+import AdminReport from './reports/adminrepost'
+import AdminUser from './users/adminuser'
+
+
 
 const { Sider, Header, Content } = Layout
 const { Text, Title } = Typography
@@ -26,8 +32,14 @@ const pageTitles: Record<AdminPage, string> = {
   posts: 'Quản lý bài đăng',
   users: 'Quản lý người dùng',
 }
+const pageComponents: Record<AdminPage, React.ReactNode> = {
+  reports: <AdminReport />,
+  posts: <AdminPost />,
+  users: <AdminUser />,
+}
 
 function App() {
+  const navigate = useNavigate()
   const [activePage, setActivePage] = useState<AdminPage>('reports')
   const [collapsed, setCollapsed] = useState(false)
 
@@ -89,6 +101,7 @@ function App() {
               </div>
             )}
           </div>
+          <Button onClick={() => navigate('/login')}>Đăng xuất</Button>
         </Sider>
 
         <Layout className="admin-main">
@@ -116,7 +129,9 @@ function App() {
               <Text className="page-overline">KHÔNG GIAN LÀM VIỆC</Text>
               <Title level={2} className="page-title">{pageTitles[activePage]}</Title>
             </div>
-            <section className="page-canvas" aria-label={pageTitles[activePage]} />
+            <section className="page-canvas" aria-label={pageTitles[activePage]} >
+              {pageComponents[activePage]}
+            </section>
           </Content>
         </Layout>
       </Layout>
