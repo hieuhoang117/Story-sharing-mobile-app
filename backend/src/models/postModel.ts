@@ -104,6 +104,8 @@ const Post = {
             where: {
                 user_id,
                 parent_post_id: null,
+                status: 'active',
+                visibility: 'public',
             },
             select: {
                 id: true,
