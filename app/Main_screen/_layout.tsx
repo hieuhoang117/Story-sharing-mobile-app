@@ -5,7 +5,7 @@ export default function MainLayout() {
     <Stack>
       <Stack.Screen name="index"
         options={{
-          title: 'iLife',
+          title: 'Shared Story',
         }} />
     </Stack>
   );
