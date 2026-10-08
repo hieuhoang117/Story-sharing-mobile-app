@@ -5,6 +5,7 @@ export default function MainLayout() {
     <Stack>
       <Stack.Screen name="index"
       options={{title:''}} />
+      <Stack.Screen name="changepass" options={{title:'Đổi mật khẩu',headerBackButtonDisplayMode: 'minimal'}}></Stack.Screen>
     </Stack>
   );
 }

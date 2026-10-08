@@ -2,7 +2,7 @@ import { useAuth } from '@/context/AuthContext';
 import { deleteImage, getUserById, updateMyAvatar, updateMyBio, updateMyPrivacy, uploadpic } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -271,6 +271,14 @@ export default function UserDetailScreen() {
 								</View>
 							</View>
 						)}
+
+						<View style={styles.detailRow}>
+							<Ionicons name="key-outline" size={20} color="red" />
+							<Pressable onPress={() => router.push('/profile/changepass')} style={styles.privacyEditButton}>
+								<Text style={{color:'red'}}>Đổi mật khẩu</Text>
+							</Pressable>
+						</View>
+
 
 						<Pressable
 							style={styles.bioSection}
