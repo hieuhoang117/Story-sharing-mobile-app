@@ -142,7 +142,7 @@ export const searchUsers = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username is required' });
     }
 
-    const users = await userService.searchUsersByUsername(username);
+    const users = await userService.searchUsersByUsername(username, (req as any).user.id as string);
     res.status(200).json({ data: users });
   } catch (error) {
     res.status(500).json({ message: 'Error searching users', error });

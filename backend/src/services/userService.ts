@@ -88,11 +88,12 @@ export const getAllUsers = async () => {
   });
 };
 
-export const searchUsersByUsername = async (username: string) => {
+export const searchUsersByUsername = async (username: string,userId:string) => {
   return await User.findMany({
     where: {
       username: { contains: username },
       status: 'active',
+      id: { not: userId },
     },
     select: {
       id: true,
