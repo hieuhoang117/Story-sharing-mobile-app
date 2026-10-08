@@ -74,7 +74,7 @@ const Post = {
                 created_at: true,
                 updated_at: true,
             },
-            orderBy: { created_at: 'desc' },   // nên thêm, để post mới nhất hiện lên đầu
+            orderBy: { created_at: 'desc' },   
         })
     },
     searchPosts: async (keyword: string) => {
