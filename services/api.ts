@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 const api = axios.create({
-  baseURL: 'http://172.20.10.2:3000/api',
+  baseURL: 'http://192.168.1.75:3000/api',
 });
 
 api.interceptors.request.use(async (config) => {
@@ -61,7 +61,6 @@ export const searchUsers = (username: string) => {
 export const getpostbyuserid = (user_id: string) => {
   return api.get(`/posts/postbyuser/${user_id}`);
 };
-
 //uploadpic---------------
 type ImageUploadAsset = {
   uri: string;

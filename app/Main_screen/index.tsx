@@ -1,5 +1,5 @@
 import Post from '@/components/Post/post';
-import { getAllPosts } from '@/services/postapi';
+import { fetchpostsuggest } from '@/services/postapi';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -22,7 +22,7 @@ export default function MainScreen() {
   const fetchAllPosts = async () => {
     setLoading(true);
     try {
-      const response = await getAllPosts();
+      const response = await fetchpostsuggest();
       setPosts(response.data.data); // tùy backend trả { data: [...] } hay trả thẳng mảng
     } catch (error) {
       console.error('get all posts failed:', error);
