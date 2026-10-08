@@ -22,6 +22,9 @@ export const searchPosts = (keyword: string) => {
 export const getpicbypost = (post_id: string) => {
   return api.get(`/posts/getpostpic/${post_id}`);
 };
+export const fetchpostsuggest=()=>{
+  return api.get(`/fetch/feed`);
+}
 
 //like---------------
 export const getlikesbypost = (post_id: string) => {
