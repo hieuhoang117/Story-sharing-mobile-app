@@ -1,0 +1,45 @@
+.admin-user-search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.admin-user-search-button {
+  margin-top: 8px;
+}
+
+.admin-user-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-user-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-user-action-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.admin-user-action-panel .ant-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.admin-user-error {
+  padding: 16px;
+  border-radius: 8px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #cf1322;
+}
