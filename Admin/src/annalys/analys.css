@@ -1,0 +1,55 @@
+.analytics-dashboard {
+  display: flex;
+  width: 100%;
+}
+
+.analytics-dashboard__title.ant-typography {
+  margin: 4px 0 0;
+}
+
+.analytics-stat-card .ant-statistic-content {
+  color: #273630;
+}
+
+.analytics-stat-card--primary .ant-statistic-content {
+  color: #167d70;
+}
+
+.analytics-stat-card--warning .ant-statistic-content {
+  color: #d48806;
+}
+
+.analytics-panel-card {
+  height: 100%;
+}
+
+.analytics-feature-chart {
+  width: 100%;
+  height: 300px;
+}
+
+.analytics-feature-tabs {
+  width: 100%;
+}
+
+.analytics-feature-tabs .ant-tabs-nav {
+  margin-bottom: 20px;
+}
+
+.analytics-feature-tabs .ant-tabs-tab {
+  font-weight: 550;
+}
+
+.analytics-reports-card .ant-card-body {
+  padding: 0;
+}
+
+@media (max-width: 575px) {
+  .analytics-feature-chart {
+    height: 250px;
+  }
+
+  .analytics-feature-tabs .ant-tabs-tab {
+    padding-inline: 8px;
+  }
+}
