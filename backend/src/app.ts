@@ -1,8 +1,9 @@
 import cors from 'cors';
 import express from 'express';
-import adminblockingRoutes from './routes/adminblockingRoutes';
 import adminAnalyticsRoutes from './routes/adminAnalyticsRoutes';
+import adminblockingRoutes from './routes/adminblockingRoutes';
 import adminpostRoutes from './routes/adminpostRoutes';
+import adminReportsRoutes from './routes/adminReportsRoutes';
 import adminuserRoutes from './routes/adminuserRoutes';
 import fetchPostRoutes from './routes/fetchPostRoute';
 import notificationRoutes from './routes/notificationRoutes';
@@ -20,6 +21,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/admin/users', adminuserRoutes);
 app.use('/api/admin/posts', adminpostRoutes);
+app.use('/api/admin/reports', adminReportsRoutes);
 app.use('/api/admin/analytics', adminAnalyticsRoutes);
 app.use('/api/admin/blocks', adminblockingRoutes);
 app.use('/api/fetch', fetchPostRoutes);
