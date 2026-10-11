@@ -15,7 +15,7 @@ interface PostType {
 }
 
 export default function MainScreen() {
-  const { displayname, avatar } = useAuth();
+  const { displayname, avatar, userStatus } = useAuth();
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +34,16 @@ export default function MainScreen() {
   useEffect(() => {
     fetchAllPosts();
   }, []);
+
+  if (userStatus === 'banned') {
+    return (
+      <View style={styles.root}>
+        <Text style={{ color: 'red', fontSize: 18, textAlign: 'center', marginTop: 20 }}>
+          Tài khoản của bạn đã bị cấm. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.root}>

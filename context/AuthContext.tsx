@@ -17,6 +17,8 @@ type AuthContextType = {
   logout: () => Promise<void>;
   bio: string | null;
   setbio: (value: string | null) => void;
+  userStatus:string|null;
+  setUserStatus:(value:string|null)=>void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [displayname, setdisplayname] = useState('');
   const [username, setusername] = useState('');
   const [bio, setbio] = useState<string | null>(null);
+  const [userStatus, setUserStatus] = useState<string | null>(null);
 
   const logout = async () => {
     try {
@@ -41,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setdisplayname('');
       setusername('');
       setbio(null);
+      setUserStatus(null);
     }
   };
 
@@ -54,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username, setusername,
       logout,
       bio, setbio,
+      userStatus, setUserStatus
     }}>
       {children}
     </AuthContext.Provider>

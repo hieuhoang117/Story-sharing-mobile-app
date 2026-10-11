@@ -9,7 +9,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { setIsLoggedIn, setIsPrivate, setidUser,
-     setavatar, setdisplayname, setusername, setbio } = useAuth();
+     setavatar, setdisplayname, setusername, setbio, setUserStatus } = useAuth();
 
   const handleLogin = () => {
     if (email == null||email.length == 0 || password == null|| password.length == 0) {
@@ -30,6 +30,7 @@ export default function LoginScreen() {
           setusername(user.username);
           setIsLoggedIn(true);
           setbio(user.bio);
+          setUserStatus(user.status);
           router.replace('/main_screen');
         })
         .catch(error => {
