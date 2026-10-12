@@ -46,7 +46,7 @@ export default function LoginScreen() {
       <Pressable style={stylebutton.registerButton} onPress={() => router.push('/signin')}>
         <Text style={stylebutton.registerText}>Đăng ký</Text>
       </Pressable>
-      <Image source={require('../../assets/images/Logo.png')} style={{ width: 100, height: 100, marginBottom: 20 }} />
+      <Image source={require('../../assets/images/Logo.png')} style={{ width: 500, height: 500, marginBottom: 20 }} />
       <TextInput textContentType="emailAddress" placeholderTextColor="gray" style={styleinput.input} placeholder="Email" value={email} onChangeText={setEmail} />
       <TextInput textContentType="password" placeholderTextColor="gray" style={styleinput.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
       <Pressable style={stylebutton.button} onPress={handleLogin}>
