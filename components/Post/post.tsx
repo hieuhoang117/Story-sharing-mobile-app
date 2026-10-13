@@ -344,13 +344,6 @@ export default function Post({ userId, postId, onDeleted }: PostProps) {
                                 <Text style={styles.visibilityDescription}>Ẩn bài viết này khỏi màn hình hiện tại.</Text>
                             </View>
                         </Pressable>
-                        <Pressable style={styles.otherPostAction} onPress={handleRepost}>
-                            <Ionicons name="repeat-outline" size={20} color="#315B4B" />
-                            <View style={styles.visibilityDetails}>
-                                <Text style={styles.visibilityOptionText}>Đăng lại</Text>
-                                <Text style={styles.visibilityDescription}>Chia sẻ bài viết này lên trang cá nhân.</Text>
-                            </View>
-                        </Pressable>
                     </Pressable>
                 </Pressable>
             </Modal>

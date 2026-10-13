@@ -102,15 +102,6 @@ const PostButton = ({ post_id, user_id,comentcout, shareCount = 0 }: PostButtonP
                     <MaterialIcons name={'comment'} size={24} color={'black'} />
                     <Text style={styles.likeCount}>{comentcout}</Text>
                 </Pressable>
-
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Share"
-                    style={[styles.likeButton]}
-                >
-                    <MaterialIcons name={'share'} size={24} color={'black'} />
-                    <Text style={styles.likeCount}>{shareCount}</Text>
-                </Pressable>
             </View>
         </ThemedView>
     );
